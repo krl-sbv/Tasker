@@ -1,0 +1,310 @@
+# English	es	de	fr	it	pt	pl	ru	uk	tr   (one text per line, separated by tabs; same order as Lang.all without English)
+Today	Hoy	Heute	Aujourd'hui	Oggi	Hoje	Dzisiaj	Сегодня	Сьогодні	Bugün
+Tomorrow	Mañana	Morgen	Demain	Domani	Amanhã	Jutro	Завтра	Завтра	Yarın
+Yesterday	Ayer	Gestern	Hier	Ieri	Ontem	Wczoraj	Вчера	Вчора	Dün
+Calendar	Calendario	Kalender	Calendrier	Calendario	Calendário	Kalendarz	Календарь	Календар	Takvim
+Profile	Perfil	Profil	Profil	Profilo	Perfil	Profil	Профиль	Профіль	Profil
+Insights	Estadísticas	Statistiken	Statistiques	Statistiche	Estatísticas	Statystyki	Статистика	Статистика	İstatistikler
+How you're doing	Cómo vas	So läuft es bei dir	Où vous en êtes	Come stai andando	Como você está indo	Jak ci idzie	Как у вас дела	Як у вас справи	Nasıl gidiyorsun
+Hello	Hola	Hallo	Bonjour	Ciao	Olá	Cześć	Привет	Привіт	Merhaba
+Good morning	Buenos días	Guten Morgen	Bonjour	Buongiorno	Bom dia	Dzień dobry	Доброе утро	Доброго ранку	Günaydın
+Good afternoon	Buenas tardes	Guten Tag	Bon après-midi	Buon pomeriggio	Boa tarde	Dzień dobry	Добрый день	Добрий день	İyi günler
+Good evening	Buenas noches	Guten Abend	Bonsoir	Buonasera	Boa noite	Dobry wieczór	Добрый вечер	Добрий вечір	İyi akşamlar
+Welcome	Bienvenido	Willkommen	Bienvenue	Benvenuto	Bem-vindo	Witaj	Добро пожаловать	Ласкаво просимо	Hoş geldin
+Continue	Continuar	Weiter	Continuer	Continua	Continuar	Dalej	Продолжить	Продовжити	Devam
+Start	Empezar	Los geht's	Commencer	Inizia	Começar	Zaczynamy	Начать	Почати	Başla
+Not now	Ahora no	Nicht jetzt	Pas maintenant	Non ora	Agora não	Nie teraz	Не сейчас	Не зараз	Şimdi değil
+Save	Guardar	Speichern	Enregistrer	Salva	Salvar	Zapisz	Сохранить	Зберегти	Kaydet
+Cancel	Cancelar	Abbrechen	Annuler	Annulla	Cancelar	Anuluj	Отмена	Скасувати	İptal
+Add	Añadir	Hinzufügen	Ajouter	Aggiungi	Adicionar	Dodaj	Добавить	Додати	Ekle
+Delete	Eliminar	Löschen	Supprimer	Elimina	Excluir	Usuń	Удалить	Видалити	Sil
+Clear	Borrar	Löschen	Effacer	Cancella	Limpar	Wyczyść	Очистить	Очистити	Temizle
+Use	Usar	Verwenden	Utiliser	Usa	Usar	Użyj	Использовать	Використати	Kullan
+Got it	Entendido	Verstanden	Compris	Capito	Entendi	Rozumiem	Понятно	Зрозуміло	Anladım
+Remove	Quitar	Entfernen	Retirer	Rimuovi	Remover	Usuń	Убрать	Прибрати	Kaldır
+Reset	Restablecer	Zurücksetzen	Réinitialiser	Ripristina	Redefinir	Zresetuj	Сбросить	Скинути	Sıfırla
+Undo	Deshacer	Rückgängig	Annuler	Annulla	Desfazer	Cofnij	Отменить	Скасувати дію	Geri al
+Dismiss	Descartar	Ausblenden	Ignorer	Ignora	Dispensar	Odrzuć	Скрыть	Приховати	Gizle
+Dismiss all	Descartar todo	Alle ausblenden	Tout ignorer	Ignora tutto	Dispensar tudo	Odrzuć wszystkie	Скрыть все	Приховати всі	Hepsini gizle
+Dismissed	Descartado	Ausgeblendet	Ignoré	Ignorato	Dispensado	Odrzucono	Скрыто	Приховано	Gizlendi
+Skip today	Omitir hoy	Heute überspringen	Passer aujourd'hui	Salta oggi	Pular hoje	Pomiń dzisiaj	Пропустить сегодня	Пропустити сьогодні	Bugünü atla
+Skipped	Omitida	Übersprungen	Passée	Saltata	Pulada	Pominięte	Пропущено	Пропущено	Atlandı
+Skipped for today	Omitida por hoy	Für heute übersprungen	Passée pour aujourd'hui	Saltata per oggi	Pulada por hoje	Pominięte na dziś	Пропущено на сегодня	Пропущено на сьогодні	Bugün için atlandı
+Resume	Reanudar	Fortsetzen	Reprendre	Riprendi	Retomar	Wznów	Возобновить	Відновити	Sürdür
+Resumed	Reanudada	Fortgesetzt	Reprise	Ripresa	Retomada	Wznowiono	Возобновлено	Відновлено	Sürdürüldü
+Pause until…	Pausar hasta…	Pausieren bis…	Suspendre jusqu'à…	Sospendi fino a…	Pausar até…	Wstrzymaj do…	Приостановить до…	Призупинити до…	Şu tarihe kadar duraklat…
+Move to today	Mover a hoy	Auf heute verschieben	Déplacer à aujourd'hui	Sposta a oggi	Mover para hoje	Przenieś na dziś	Перенести на сегодня	Перенести на сьогодні	Bugüne taşı
+Marked as not done	Marcada como no hecha	Als nicht erledigt markiert	Marquée comme non faite	Segnata come non fatta	Marcada como não feita	Oznaczono jako niewykonane	Отмечено как не выполненное	Позначено як невиконане	Yapılmadı olarak işaretlendi
+Task deleted	Tarea eliminada	Aufgabe gelöscht	Tâche supprimée	Attività eliminata	Tarefa excluída	Usunięto zadanie	Задача удалена	Завдання видалено	Görev silindi
+New task	Nueva tarea	Neue Aufgabe	Nouvelle tâche	Nuova attività	Nova tarefa	Nowe zadanie	Новая задача	Нове завдання	Yeni görev
+Edit task	Editar tarea	Aufgabe bearbeiten	Modifier la tâche	Modifica attività	Editar tarefa	Edytuj zadanie	Изменить задачу	Редагувати завдання	Görevi düzenle
+Title	Título	Titel	Titre	Titolo	Título	Tytuł	Название	Назва	Başlık
+Description (optional)	Descripción (opcional)	Beschreibung (optional)	Description (facultatif)	Descrizione (facoltativa)	Descrição (opcional)	Opis (opcjonalnie)	Описание (необязательно)	Опис (необов'язково)	Açıklama (isteğe bağlı)
+Reminder	Recordatorio	Erinnerung	Rappel	Promemoria	Lembrete	Przypomnienie	Напоминание	Нагадування	Hatırlatıcı
+Color	Color	Farbe	Couleur	Colore	Cor	Kolor	Цвет	Колір	Renk
+Custom color	Color personalizado	Eigene Farbe	Couleur personnalisée	Colore personalizzato	Cor personalizada	Własny kolor	Свой цвет	Власний колір	Özel renk
+Hex code	Código hex	Hex-Code	Code hexadécimal	Codice esadecimale	Código hex	Kod hex	Hex-код	Hex-код	Hex kodu
+One time	Una vez	Einmalig	Une fois	Una volta	Uma vez	Jednorazowo	Один раз	Одноразово	Bir kez
+Every X days	Cada X días	Alle X Tage	Tous les X jours	Ogni X giorni	A cada X dias	Co X dni	Каждые X дней	Кожні X днів	Her X günde bir
+Weekdays	Días de la semana	Wochentage	Jours de la semaine	Giorni della settimana	Dias da semana	Dni tygodnia	Дни недели	Дні тижня	Haftanın günleri
+Every day	Todos los días	Jeden Tag	Tous les jours	Ogni giorno	Todos os dias	Codziennie	Каждый день	Щодня	Her gün
+Pick days	Elegir días	Tage wählen	Choisir les jours	Scegli i giorni	Escolher dias	Wybierz dni	Выбрать дни	Обрати дні	Gün seç
+Repeating tasks	Tareas repetitivas	Wiederkehrende Aufgaben	Tâches récurrentes	Attività ripetute	Tarefas repetidas	Zadania cykliczne	Повторяющиеся задачи	Повторювані завдання	Tekrarlayan görevler
+Delete repeating task?	¿Eliminar tarea repetitiva?	Wiederkehrende Aufgabe löschen?	Supprimer la tâche récurrente ?	Eliminare l'attività ripetuta?	Excluir tarefa repetida?	Usunąć zadanie cykliczne?	Удалить повторяющуюся задачу?	Видалити повторюване завдання?	Tekrarlayan görev silinsin mi?
+No repeating tasks yet.	Aún no hay tareas repetitivas.	Noch keine wiederkehrenden Aufgaben.	Aucune tâche récurrente pour l'instant.	Ancora nessuna attività ripetuta.	Ainda não há tarefas repetidas.	Brak zadań cyklicznych.	Повторяющихся задач пока нет.	Повторюваних завдань ще немає.	Henüz tekrarlayan görev yok.
+Tap one to fix its schedule	Toca una para ajustar su horario	Tippe darauf, um den Plan zu ändern	Touchez-en une pour régler son horaire	Tocca per correggere il programma	Toque em uma para ajustar o horário	Dotknij, aby poprawić harmonogram	Нажмите, чтобы изменить расписание	Торкніться, щоб змінити розклад	Takvimini düzeltmek için dokun
+No tasks yet. Tap + to add one.	Aún no hay tareas. Toca + para añadir.	Noch keine Aufgaben. Tippe auf +.	Aucune tâche. Touchez + pour en ajouter.	Nessuna attività. Tocca + per aggiungerne una.	Nenhuma tarefa ainda. Toque em + para adicionar.	Brak zadań. Dotknij +, aby dodać.	Задач пока нет. Нажмите +, чтобы добавить.	Завдань ще немає. Натисніть +, щоб додати.	Henüz görev yok. Eklemek için + dokun.
+Nothing planned for today.	Nada planeado para hoy.	Für heute ist nichts geplant.	Rien de prévu aujourd'hui.	Niente in programma per oggi.	Nada planejado para hoje.	Na dziś nic nie zaplanowano.	На сегодня ничего не запланировано.	На сьогодні нічого не заплановано.	Bugün için planlanmış bir şey yok.
+Nothing planned for today	Nada planeado para hoy	Für heute ist nichts geplant	Rien de prévu aujourd'hui	Niente in programma per oggi	Nada planejado para hoje	Na dziś nic nie zaplanowano	На сегодня ничего не запланировано	На сьогодні нічого не заплановано	Bugün için planlanmış bir şey yok
+Nothing on this day	Nada este día	An diesem Tag nichts	Rien ce jour-là	Niente in questo giorno	Nada neste dia	Nic w tym dniu	В этот день ничего нет	У цей день нічого немає	Bu günde bir şey yok
+Nothing planned this month	Nada planeado este mes	In diesem Monat ist nichts geplant	Rien de prévu ce mois-ci	Niente in programma questo mese	Nada planejado este mês	W tym miesiącu nic nie zaplanowano	В этом месяце ничего не запланировано	У цьому місяці нічого не заплановано	Bu ay planlanmış bir şey yok
+Add task on this day	Añadir tarea este día	Aufgabe an diesem Tag hinzufügen	Ajouter une tâche ce jour	Aggiungi attività in questo giorno	Adicionar tarefa neste dia	Dodaj zadanie na ten dzień	Добавить задачу на этот день	Додати завдання на цей день	Bu güne görev ekle
+Tasks for this day	Tareas de este día	Aufgaben für diesen Tag	Tâches de ce jour	Attività di questo giorno	Tarefas deste dia	Zadania na ten dzień	Задачи на этот день	Завдання на цей день	Bu günün görevleri
+This month	Este mes	Dieser Monat	Ce mois-ci	Questo mese	Este mês	Ten miesiąc	Этот месяц	Цей місяць	Bu ay
+One-time tasks & public holidays	Tareas únicas y festivos	Einmalige Aufgaben & Feiertage	Tâches uniques et jours fériés	Attività singole e festività	Tarefas únicas e feriados	Zadania jednorazowe i święta	Разовые задачи и праздники	Разові завдання та свята	Tek seferlik görevler ve resmi tatiller
+Public holiday	Festivo	Feiertag	Jour férié	Festività	Feriado	Święto	Праздничный день	Свято	Resmi tatil
+Day	Día	Tag	Jour	Giorno	Dia	Dzień	День	День	Gün
+Month	Mes	Monat	Mois	Mese	Mês	Miesiąc	Месяц	Місяць	Ay
+Year	Año	Jahr	Année	Anno	Ano	Rok	Год	Рік	Yıl
+Last day	Último día	Letzter Tag	Dernier jour	Ultimo giorno	Último dia	Ostatni dzień	Последний день	Останній день	Son gün
+1 day	1 día	1 Tag	1 jour	1 giorno	1 dia	1 dzień	1 день	1 день	1 gün
+days	días	Tage	jours	giorni	dias	dni	дн.	днів	gün
+left today	restante hoy	heute übrig	restant aujourd'hui	rimasto oggi	restante hoje	zostało dziś	осталось сегодня	залишилось сьогодні	bugün kaldı
+left in	restante en	übrig in	restant en	rimasto nel	restante em	zostało w	осталось в	залишилось у	kaldı:
+of	de	von	de	di	de	z	из	з	/
+Next	Próxima	Nächste	Prochaine	Prossima	Próxima	Następne	Следующая	Наступне	Sonraki
+today	hoy	heute	aujourd'hui	oggi	hoje	dzisiaj	сегодня	сьогодні	bugün
+tomorrow	mañana	morgen	demain	domani	amanhã	jutro	завтра	завтра	yarın
+last	últimos	letzte	derniers	ultimi	últimos	ostatnie	последние	останні	son
+Daily completion	Finalización diaria	Tägliche Erledigung	Réussite quotidienne	Completamento giornaliero	Conclusão diária	Dzienne wykonanie	Выполнение по дням	Щоденне виконання	Günlük tamamlama
+Notes	Notas	Hinweise	Notes	Note	Notas	Uwagi	Заметки	Нотатки	Notlar
+what stands out	lo más destacado	was auffällt	ce qui ressort	cosa spicca	o que se destaca	co się wyróżnia	что выделяется	що впадає в око	öne çıkanlar
+Swipe to switch	Desliza para cambiar	Zum Wechseln wischen	Balayez pour changer	Scorri per cambiare	Deslize para alternar	Przesuń, aby przełączyć	Свайп для переключения	Проведіть, щоб перемкнути	Geçmek için kaydır
+Overview	Resumen	Übersicht	Aperçu	Panoramica	Visão geral	Przegląd	Обзор	Огляд	Genel bakış
+Per task	Por tarea	Pro Aufgabe	Par tâche	Per attività	Por tarefa	Wg zadań	По задачам	За завданнями	Göreve göre
+Last 20 weeks	Últimas 20 semanas	Letzte 20 Wochen	20 dernières semaines	Ultime 20 settimane	Últimas 20 semanas	Ostatnie 20 tygodni	Последние 20 недель	Останні 20 тижнів	Son 20 hafta
+one square per day	un cuadro por día	ein Feld pro Tag	un carré par jour	un quadrato al giorno	um quadrado por dia	jeden kwadrat na dzień	один квадрат на день	один квадрат на день	günde bir kare
+Stats	Estadísticas	Statistik	Statistiques	Statistiche	Estatísticas	Statystyki	Статистика	Статистика	İstatistik
+Well done!	¡Bien hecho!	Gut gemacht!	Bien joué !	Ben fatto!	Muito bem!	Dobra robota!	Молодец!	Молодець!	Aferin!
+Good job!	¡Buen trabajo!	Gute Arbeit!	Bon travail !	Bel lavoro!	Bom trabalho!	Dobra robota!	Хорошая работа!	Гарна робота!	İyi iş!
+Nice work!	¡Buen trabajo!	Schön gemacht!	Beau travail !	Ottimo lavoro!	Ótimo trabalho!	Świetna robota!	Отличная работа!	Чудова робота!	Güzel iş!
+All done for today!	¡Todo hecho por hoy!	Für heute alles erledigt!	Tout est fait pour aujourd'hui !	Tutto fatto per oggi!	Tudo feito por hoje!	Wszystko na dziś zrobione!	На сегодня всё готово!	На сьогодні все готово!	Bugünlük hepsi tamam!
+You crushed it!	¡Lo lograste!	Du hast es gerockt!	Vous avez assuré !	Sei stato grande!	Você arrasou!	Rozwaliłeś system!	Вы справились блестяще!	Ви впоралися чудово!	Harikasın!
+Great job!	¡Gran trabajo!	Tolle Arbeit!	Excellent travail !	Ottimo lavoro!	Ótimo trabalho!	Świetna robota!	Отличная работа!	Чудова робота!	Harika iş!
+Today is complete!	¡Hoy está completo!	Heute ist geschafft!	La journée est terminée !	Oggi è completo!	Hoje está completo!	Dzień ukończony!	День завершён!	День завершено!	Bugün tamam!
+Keep it up!	¡Sigue así!	Weiter so!	Continuez ainsi !	Continua così!	Continue assim!	Tak trzymaj!	Так держать!	Так тримати!	Böyle devam!
+You	Tú	Du	Vous	Tu	Você	Ty	Вы	Ви	Sen
+Name	Nombre	Name	Nom	Nome	Nome	Imię	Имя	Ім'я	İsim
+Your name	Tu nombre	Dein Name	Votre nom	Il tuo nome	Seu nome	Twoje imię	Ваше имя	Ваше ім'я	Adın
+Shown on the Today screen	Se muestra en la pantalla Hoy	Wird auf dem Heute-Bildschirm angezeigt	Affiché sur l'écran Aujourd'hui	Mostrato nella schermata Oggi	Mostrado na tela Hoje	Wyświetlane na ekranie Dzisiaj	Показывается на экране «Сегодня»	Показується на екрані «Сьогодні»	Bugün ekranında gösterilir
+Tap the photo to change it	Toca la foto para cambiarla	Tippe aufs Foto, um es zu ändern	Touchez la photo pour la changer	Tocca la foto per cambiarla	Toque na foto para trocá-la	Dotknij zdjęcia, aby je zmienić	Нажмите на фото, чтобы изменить	Торкніться фото, щоб змінити	Değiştirmek için fotoğrafa dokun
+Language & holidays	Idioma y festivos	Sprache & Feiertage	Langue et jours fériés	Lingua e festività	Idioma e feriados	Język i święta	Язык и праздники	Мова та свята	Dil ve tatiller
+Language	Idioma	Sprache	Langue	Lingua	Idioma	Język	Язык	Мова	Dil
+Language of the app	Idioma de la app	Sprache der App	Langue de l'application	Lingua dell'app	Idioma do app	Język aplikacji	Язык приложения	Мова застосунку	Uygulama dili
+Pick the language of the app	Elige el idioma de la app	Wähle die Sprache der App	Choisissez la langue de l'application	Scegli la lingua dell'app	Escolha o idioma do app	Wybierz język aplikacji	Выберите язык приложения	Оберіть мову застосунку	Uygulama dilini seç
+Pick your language. You can change it later in Profile.	Elige tu idioma. Podrás cambiarlo luego en Perfil.	Wähle deine Sprache. Du kannst sie später im Profil ändern.	Choisissez votre langue. Vous pourrez la changer plus tard dans Profil.	Scegli la tua lingua. Potrai cambiarla poi in Profilo.	Escolha seu idioma. Você pode mudar depois em Perfil.	Wybierz język. Możesz go później zmienić w Profilu.	Выберите язык. Позже его можно сменить в профиле.	Оберіть мову. Пізніше її можна змінити в профілі.	Dilini seç. Daha sonra Profil'den değiştirebilirsin.
+Device language	Idioma del dispositivo	Gerätesprache	Langue de l'appareil	Lingua del dispositivo	Idioma do dispositivo	Język urządzenia	Язык устройства	Мова пристрою	Cihaz dili
+Device	Dispositivo	Gerät	Appareil	Dispositivo	Dispositivo	Urządzenie	Устройство	Пристрій	Cihaz
+Built in · works offline	Incluido · funciona sin conexión	Integriert · funktioniert offline	Intégré · fonctionne hors ligne	Incluso · funziona offline	Incluído · funciona offline	Wbudowane · działa offline	Встроено · работает офлайн	Вбудовано · працює офлайн	Dahili · çevrimdışı çalışır
+Holidays	Festivos	Feiertage	Jours fériés	Festività	Feriados	Święta	Праздники	Свята	Tatiller
+Country of the public holidays	País de los festivos	Land der Feiertage	Pays des jours fériés	Paese delle festività	País dos feriados	Kraj świąt państwowych	Страна праздников	Країна державних свят	Resmi tatillerin ülkesi
+Show holidays	Mostrar festivos	Feiertage anzeigen	Afficher les jours fériés	Mostra festività	Mostrar feriados	Pokaż święta	Показывать праздники	Показувати свята	Tatilleri göster
+Mark them in the calendar	Márcalos en el calendario	Im Kalender markieren	Les marquer dans le calendrier	Segnale nel calendario	Marcar no calendário	Zaznacz w kalendarzu	Отмечать в календаре	Позначати в календарі	Takvimde işaretle
+Automatic	Automático	Automatisch	Automatique	Automatico	Automático	Automatycznie	Автоматически	Автоматично	Otomatik
+Follows your phone	Sigue tu teléfono	Folgt deinem Handy	Suit votre téléphone	Segue il telefono	Segue seu telefone	Zgodnie z telefonem	Как на телефоне	Як на телефоні	Telefonunu izler
+Follows your phone by default	Sigue tu teléfono por defecto	Folgt standardmäßig deinem Handy	Suit votre téléphone par défaut	Segue il telefono per impostazione predefinita	Segue seu telefone por padrão	Domyślnie zgodnie z telefonem	По умолчанию как на телефоне	За замовчуванням як на телефоні	Varsayılan olarak telefonunu izler
+not installed	no instalado	nicht installiert	non installé	non installato	não instalado	niezainstalowany	не установлено	не встановлено	yüklü değil
+Installed only	Solo instalados	Nur installierte	Installés uniquement	Solo installati	Somente instalados	Tylko zainstalowane	Только установленные	Лише встановлені	Yalnızca yüklenenler
+Hide countries that are not downloaded	Ocultar países no descargados	Nicht geladene Länder ausblenden	Masquer les pays non téléchargés	Nascondi i paesi non scaricati	Ocultar países não baixados	Ukryj kraje, które nie są pobrane	Скрыть неустановленные страны	Сховати країни, які не завантажено	İndirilmeyen ülkeleri gizle
+Installed	Instalados	Installiert	Installés	Installati	Instalados	Zainstalowane	Установлено	Встановлені	Yüklü
+Built in	Incluido	Integriert	Intégré	Incluso	Incluído	Wbudowane	Встроено	Вбудовано	Dahili
+Downloaded	Descargado	Heruntergeladen	Téléchargé	Scaricato	Baixado	Pobrane	Загружено	Завантажено	İndirildi
+All countries	Todos los países	Alle Länder	Tous les pays	Tutti i paesi	Todos os países	Wszystkie kraje	Все страны	Усі країни	Tüm ülkeler
+Install	Instalar	Installieren	Installer	Installa	Instalar	Zainstaluj	Установить	Встановити	Yükle
+Search countries	Buscar países	Länder suchen	Rechercher un pays	Cerca paesi	Buscar países	Szukaj krajów	Поиск стран	Пошук країн	Ülke ara
+Downloaded countries also work offline	Los países descargados funcionan sin conexión	Geladene Länder funktionieren auch offline	Les pays téléchargés fonctionnent aussi hors ligne	I paesi scaricati funzionano anche offline	Países baixados também funcionam offline	Pobrane kraje działają też offline	Загруженные страны работают и офлайн	Завантажені країни працюють і офлайн	İndirilen ülkeler çevrimdışı da çalışır
+Choose a country. Downloaded countries also work offline.	Elige un país. Los descargados funcionan sin conexión.	Wähle ein Land. Geladene Länder funktionieren auch offline.	Choisissez un pays. Les pays téléchargés fonctionnent hors ligne.	Scegli un paese. I paesi scaricati funzionano anche offline.	Escolha um país. Os baixados funcionam offline.	Wybierz kraj. Pobrane kraje działają też offline.	Выберите страну. Загруженные работают и офлайн.	Оберіть країну. Завантажені країни працюють і офлайн.	Bir ülke seç. İndirilen ülkeler çevrimdışı da çalışır.
+No holidays available for this country	No hay festivos disponibles para este país	Für dieses Land sind keine Feiertage verfügbar	Aucun jour férié disponible pour ce pays	Nessuna festività disponibile per questo paese	Sem feriados disponíveis para este país	Brak świąt dla tego kraju	Для этой страны праздники недоступны	Для цієї країни свят немає	Bu ülke için tatil verisi yok
+No connection. Try again when you are online.	Sin conexión. Inténtalo de nuevo cuando estés en línea.	Keine Verbindung. Versuche es online erneut.	Pas de connexion. Réessayez une fois en ligne.	Nessuna connessione. Riprova quando sei online.	Sem conexão. Tente novamente quando estiver online.	Brak połączenia. Spróbuj ponownie online.	Нет соединения. Повторите, когда будете онлайн.	Немає з'єднання. Спробуйте, коли будете онлайн.	Bağlantı yok. Çevrimiçi olunca tekrar dene.
+Tasks	Tareas	Aufgaben	Tâches	Attività	Tarefas	Zadania	Задачи	Завдання	Görevler
+Review and fix schedules	Revisa y ajusta horarios	Pläne prüfen und korrigieren	Vérifier et ajuster les horaires	Controlla e correggi i programmi	Revise e ajuste horários	Sprawdź i popraw harmonogramy	Проверить и изменить расписание	Перегляд і зміна розкладів	Takvimleri gözden geçir ve düzelt
+Appearance	Apariencia	Darstellung	Apparence	Aspetto	Aparência	Wygląd	Внешний вид	Вигляд	Görünüm
+Animations	Animaciones	Animationen	Animations	Animazioni	Animações	Animacje	Анимации	Анімації	Animasyonlar
+Springy, fluid motion	Movimiento fluido y elástico	Federnde, flüssige Bewegung	Mouvement fluide et élastique	Movimento fluido ed elastico	Movimento fluido e elástico	Sprężysty, płynny ruch	Плавное, упругое движение	Пружний, плавний рух	Yaylanan, akıcı hareket
+Daily quote	Cita diaria	Zitat des Tages	Citation du jour	Citazione del giorno	Citação diária	Cytat dnia	Цитата дня	Цитата дня	Günün sözü
+A new one at midnight and noon	Una nueva a medianoche y mediodía	Neues um Mitternacht und Mittag	Une nouvelle à minuit et à midi	Una nuova a mezzanotte e a mezzogiorno	Uma nova à meia-noite e ao meio-dia	Nowy o północy i w południe	Новая в полночь и в полдень	Нова опівночі та опівдні	Gece yarısı ve öğlen yenisi
+Theme	Tema	Design	Thème	Tema	Tema	Motyw	Тема	Тема	Tema
+System	Sistema	System	Système	Sistema	Sistema	Systemowy	Системная	Системна	Sistem
+Light	Claro	Hell	Clair	Chiaro	Claro	Jasny	Светлая	Світла	Açık
+Dark	Oscuro	Dunkel	Sombre	Scuro	Escuro	Ciemny	Тёмная	Темна	Koyu
+Black	Negro	Schwarz	Noir	Nero	Preto	Czarny	Чёрная	Чорна	Siyah
+Swipe blur	Desenfoque al deslizar	Wisch-Unschärfe	Flou au balayage	Sfocatura allo scorrimento	Desfoque ao deslizar	Rozmycie przy przesuwaniu	Размытие при свайпе	Розмиття під час свайпу	Kaydırma bulanıklığı
+Blurs screens as you swipe	Desenfoca las pantallas al deslizar	Verwischt Bildschirme beim Wischen	Floute les écrans pendant le balayage	Sfoca le schermate mentre scorri	Desfoca as telas ao deslizar	Rozmywa ekrany podczas przesuwania	Размывает экраны при свайпе	Розмиває екрани під час свайпу	Kaydırırken ekranları bulanıklaştırır
+Off	Desactivado	Aus	Désactivé	Off	Desligado	Wył.	Выкл.	Вимк.	Kapalı
+Strong	Fuerte	Stark	Fort	Forte	Forte	Mocne	Сильное	Сильне	Güçlü
+Notifications	Notificaciones	Benachrichtigungen	Notifications	Notifiche	Notificações	Powiadomienia	Уведомления	Сповіщення	Bildirimler
+Exact reminders	Recordatorios exactos	Exakte Erinnerungen	Rappels exacts	Promemoria esatti	Lembretes exatos	Dokładne przypomnienia	Точные напоминания	Точні нагадування	Tam zamanlı hatırlatıcılar
+On · alarms arrive on time	Activado · llegan a tiempo	An · Alarme kommen pünktlich	Activé · à l'heure exacte	On · gli avvisi arrivano in orario	Ativado · chegam na hora	Wł. · alarmy o czasie	Вкл. · приходят вовремя	Увімк. · сповіщення вчасно	Açık · alarmlar tam zamanında
+Off · tap to allow	Desactivado · toca para permitir	Aus · zum Erlauben tippen	Désactivé · touchez pour autoriser	Off · tocca per consentire	Desativado · toque para permitir	Wył. · dotknij, aby zezwolić	Выкл. · нажмите, чтобы разрешить	Вимк. · торкніться, щоб дозволити	Kapalı · izin için dokun
+Evening nudge	Aviso vespertino	Abend-Erinnerung	Rappel du soir	Promemoria serale	Lembrete da noite	Wieczorne przypomnienie	Вечернее напоминание	Вечірнє нагадування	Akşam hatırlatması
+A reminder at 19:00–20:00 if tasks are left	Un aviso a las 19:00–20:00 si quedan tareas	Erinnerung zwischen 19:00 und 20:00, wenn Aufgaben offen sind	Un rappel à 19h–20h s'il reste des tâches	Un promemoria alle 19:00–20:00 se restano attività	Um lembrete às 19:00–20:00 se restarem tarefas	Przypomnienie 19:00–20:00, jeśli zostały zadania	Напоминание в 19:00–20:00, если остались задачи	Нагадування о 19:00–20:00, якщо є невиконані завдання	Görev kaldıysa 19:00–20:00 arasında hatırlatma
+Weekly review	Resumen semanal	Wochenrückblick	Bilan hebdomadaire	Riepilogo settimanale	Resumo semanal	Podsumowanie tygodnia	Недельный обзор	Тижневий огляд	Haftalık özet
+A short summary every week	Un breve resumen cada semana	Jede Woche eine kurze Zusammenfassung	Un court résumé chaque semaine	Un breve riepilogo ogni settimana	Um breve resumo toda semana	Krótkie podsumowanie co tydzień	Краткая сводка каждую неделю	Короткий підсумок щотижня	Her hafta kısa bir özet
+Week starts on	La semana empieza el	Woche beginnt am	La semaine commence le	La settimana inizia di	A semana começa em	Tydzień zaczyna się w	Неделя начинается с	Тиждень починається з	Hafta başlangıcı
+First day in calendar and charts	Primer día en calendario y gráficos	Erster Tag in Kalender und Diagrammen	Premier jour du calendrier et des graphiques	Primo giorno in calendario e grafici	Primeiro dia no calendário e gráficos	Pierwszy dzień w kalendarzu i wykresach	Первый день в календаре и графиках	Перший день у календарі та діаграмах	Takvim ve grafiklerde ilk gün
+Data	Datos	Daten	Données	Dati	Dados	Dane	Данные	Дані	Veri
+Import	Importar	Importieren	Importer	Importa	Importar	Importuj	Импорт	Імпорт	İçe aktar
+Add tasks from a backup file	Añade tareas desde un archivo de copia	Aufgaben aus einer Sicherung hinzufügen	Ajouter des tâches depuis une sauvegarde	Aggiungi attività da un file di backup	Adicione tarefas de um backup	Dodaj zadania z pliku kopii	Добавить задачи из резервной копии	Додати завдання з файлу резервної копії	Yedek dosyasından görev ekle
+Imported	Importado	Importiert	Importé	Importato	Importado	Zaimportowano	Импортировано	Імпортовано	İçe aktarıldı
+Invalid file	Archivo no válido	Ungültige Datei	Fichier invalide	File non valido	Arquivo inválido	Nieprawidłowy plik	Неверный файл	Недійсний файл	Geçersiz dosya
+Export	Exportar	Exportieren	Exporter	Esporta	Exportar	Eksportuj	Экспорт	Експорт	Dışa aktar
+Exported	Exportado	Exportiert	Exporté	Esportato	Exportado	Wyeksportowano	Экспортировано	Експортовано	Dışa aktarıldı
+Save tasks, history and settings	Guarda tareas, historial y ajustes	Aufgaben, Verlauf und Einstellungen speichern	Enregistrer tâches, historique et réglages	Salva attività, cronologia e impostazioni	Salve tarefas, histórico e ajustes	Zapisz zadania, historię i ustawienia	Сохранить задачи, историю и настройки	Зберегти завдання, історію та налаштування	Görevleri, geçmişi ve ayarları kaydet
+Back up now	Copia ahora	Jetzt sichern	Sauvegarder maintenant	Esegui backup ora	Fazer backup agora	Utwórz kopię teraz	Создать копию сейчас	Створити копію зараз	Şimdi yedekle
+Save a copy to your folder	Guarda una copia en tu carpeta	Kopie in deinem Ordner speichern	Enregistrer une copie dans votre dossier	Salva una copia nella tua cartella	Salve uma cópia na sua pasta	Zapisz kopię w swoim folderze	Сохранить копию в вашу папку	Зберегти копію у вашу теку	Klasörüne bir kopya kaydet
+Reset all data	Borrar todos los datos	Alle Daten zurücksetzen	Réinitialiser toutes les données	Reimposta tutti i dati	Redefinir todos os dados	Zresetuj wszystkie dane	Сбросить все данные	Скинути всі дані	Tüm verileri sıfırla
+Delete all tasks and history	Elimina todas las tareas e historial	Alle Aufgaben und den Verlauf löschen	Supprimer toutes les tâches et l'historique	Elimina tutte le attività e la cronologia	Exclua todas as tarefas e histórico	Usuń wszystkie zadania i historię	Удалить все задачи и историю	Видалити всі завдання та історію	Tüm görevleri ve geçmişi sil
+Reset all data?	¿Borrar todos los datos?	Alle Daten zurücksetzen?	Réinitialiser toutes les données ?	Reimpostare tutti i dati?	Redefinir todos os dados?	Zresetować wszystkie dane?	Сбросить все данные?	Скинути всі дані?	Tüm veriler sıfırlansın mı?
+All tasks and your finished history will be deleted. Export first if you want a copy.	Se borrarán todas las tareas y tu historial. Exporta antes si quieres una copia.	Alle Aufgaben und dein Verlauf werden gelöscht. Exportiere zuerst, wenn du eine Kopie willst.	Toutes les tâches et l'historique seront supprimés. Exportez d'abord pour garder une copie.	Tutte le attività e la cronologia verranno eliminate. Esporta prima se vuoi una copia.	Todas as tarefas e o histórico serão excluídos. Exporte antes se quiser uma cópia.	Wszystkie zadania i historia zostaną usunięte. Najpierw wyeksportuj, jeśli chcesz kopię.	Все задачи и история будут удалены. Сначала экспортируйте, если нужна копия.	Усі завдання та історію буде видалено. Спочатку експортуйте, якщо потрібна копія.	Tüm görevler ve geçmişin silinecek. Kopya istiyorsan önce dışa aktar.
+Auto-backup	Copia automática	Auto-Sicherung	Sauvegarde auto	Backup automatico	Backup automático	Automatyczna kopia	Автокопия	Автокопія	Otomatik yedek
+Daily copy	Copia diaria	Tägliche Kopie	Copie quotidienne	Copia giornaliera	Cópia diária	Codzienna kopia	Ежедневная копия	Щоденна копія	Günlük kopya
+Save a daily copy to a folder	Guarda una copia diaria en una carpeta	Täglich eine Kopie in einem Ordner speichern	Enregistre une copie quotidienne dans un dossier	Salva una copia giornaliera in una cartella	Salva uma cópia diária em uma pasta	Zapisuje codzienną kopię w folderze	Сохраняет копию в папку каждый день	Щодня зберігає копію в теку	Her gün bir klasöre kopya kaydeder
+This file also has your name and settings. Restore them too?	Este archivo también tiene tu nombre y ajustes. ¿Restaurarlos también?	Diese Datei enthält auch deinen Namen und Einstellungen. Ebenfalls wiederherstellen?	Ce fichier contient aussi votre nom et vos réglages. Les restaurer aussi ?	Questo file contiene anche nome e impostazioni. Ripristinarli?	Este arquivo também tem seu nome e ajustes. Restaurá-los também?	Plik zawiera też imię i ustawienia. Przywrócić je?	В файле есть имя и настройки. Восстановить и их?	Файл містить також ім'я та налаштування. Відновити їх?	Bu dosyada adın ve ayarların da var. Onlar da geri yüklensin mi?
+Tasks and settings	Tareas y ajustes	Aufgaben und Einstellungen	Tâches et réglages	Attività e impostazioni	Tarefas e ajustes	Zadania i ustawienia	Задачи и настройки	Завдання та налаштування	Görevler ve ayarlar
+Tasks only	Solo tareas	Nur Aufgaben	Tâches seulement	Solo attività	Somente tarefas	Tylko zadania	Только задачи	Лише завдання	Yalnızca görevler
+What should we call you?	¿Cómo te llamamos?	Wie sollen wir dich nennen?	Comment vous appeler ?	Come ti chiamiamo?	Como devemos chamar você?	Jak mamy się do ciebie zwracać?	Как к вам обращаться?	Як до вас звертатися?	Sana nasıl hitap edelim?
+Your name is shown on the Today screen.	Tu nombre se muestra en la pantalla Hoy.	Dein Name erscheint auf dem Heute-Bildschirm.	Votre nom est affiché sur l'écran Aujourd'hui.	Il tuo nome appare nella schermata Oggi.	Seu nome aparece na tela Hoje.	Twoje imię wyświetla się na ekranie Dzisiaj.	Ваше имя показывается на экране «Сегодня».	Ваше ім'я показується на екрані «Сьогодні».	Adın Bugün ekranında görünür.
+Allow notifications	Permitir notificaciones	Benachrichtigungen erlauben	Autoriser les notifications	Consenti le notifiche	Permitir notificações	Zezwól na powiadomienia	Разрешить уведомления	Дозволити сповіщення	Bildirimlere izin ver
+Get a reminder at the time you set for each task, with Done and Snooze buttons.	Recibe un recordatorio a la hora de cada tarea, con botones Hecho y Posponer.	Erhalte zur eingestellten Zeit eine Erinnerung mit Erledigt- und Später-Tasten.	Recevez un rappel à l'heure de chaque tâche, avec boutons Fait et Reporter.	Ricevi un promemoria all'ora impostata, con i pulsanti Fatto e Posticipa.	Receba um lembrete na hora de cada tarefa, com botões Feito e Adiar.	Otrzymuj przypomnienie o ustawionej porze z przyciskami Gotowe i Odłóż.	Напоминание в нужное время с кнопками «Готово» и «Отложить».	Отримуйте нагадування в потрібний час із кнопками «Готово» та «Відкласти».	Her görev için belirlediğin saatte Bitti ve Ertele düğmeli hatırlatma al.
+Allowed	Permitido	Erlaubt	Autorisé	Consentito	Permitido	Zezwolono	Разрешено	Дозволено	İzin verildi
+Not allowed yet	Aún no permitido	Noch nicht erlaubt	Pas encore autorisé	Non ancora consentito	Ainda não permitido	Jeszcze niedozwolone	Ещё не разрешено	Ще не дозволено	Henüz izin verilmedi
+Allow exact reminders	Permitir recordatorios exactos	Exakte Erinnerungen erlauben	Autoriser les rappels exacts	Consenti promemoria esatti	Permitir lembretes exatos	Zezwól na dokładne przypomnienia	Разрешить точные напоминания	Дозволити точні нагадування	Tam zamanlı hatırlatıcılara izin ver
+Without this, Android may delay reminders by several minutes.	Sin esto, Android puede retrasar los recordatorios varios minutos.	Ohne dies kann Android Erinnerungen um mehrere Minuten verzögern.	Sans cela, Android peut retarder les rappels de plusieurs minutes.	Senza questo Android può ritardare i promemoria di qualche minuto.	Sem isso, o Android pode atrasar os lembretes em vários minutos.	Bez tego Android może opóźniać przypomnienia o kilka minut.	Без этого Android может задерживать напоминания на несколько минут.	Без цього Android може затримувати нагадування на кілька хвилин.	Bu olmadan Android hatırlatmaları birkaç dakika geciktirebilir.
+Back up	Copia de seguridad	Sichern	Sauvegarde	Backup	Backup	Kopia zapasowa	Резервная копия	Резервна копія	Yedekle
+Save a daily copy of your tasks, history and settings to a folder you choose.	Guarda cada día una copia de tareas, historial y ajustes en la carpeta que elijas.	Speichere täglich eine Kopie von Aufgaben, Verlauf und Einstellungen in einem Ordner deiner Wahl.	Enregistrez chaque jour une copie des tâches, historique et réglages dans un dossier.	Salva ogni giorno una copia di attività, cronologia e impostazioni in una cartella a scelta.	Salve diariamente uma cópia de tarefas, histórico e ajustes na pasta escolhida.	Zapisuj codziennie kopię zadań, historii i ustawień w wybranym folderze.	Ежедневно сохраняйте копию задач, истории и настроек в выбранную папку.	Щодня зберігайте копію завдань, історії та налаштувань у вибрану теку.	Görevlerin, geçmişin ve ayarlarının günlük kopyasını seçtiğin klasöre kaydet.
+Choose folder	Elegir carpeta	Ordner wählen	Choisir un dossier	Scegli cartella	Escolher pasta	Wybierz folder	Выбрать папку	Обрати теку	Klasör seç
+Folder chosen	Carpeta elegida	Ordner gewählt	Dossier choisi	Cartella scelta	Pasta escolhida	Wybrano folder	Папка выбрана	Теку обрано	Klasör seçildi
+No folder yet	Aún sin carpeta	Noch kein Ordner	Pas encore de dossier	Nessuna cartella	Ainda sem pasta	Brak folderu	Папка не выбрана	Теки ще немає	Henüz klasör yok
+Switch screens	Cambiar de pantalla	Bildschirme wechseln	Changer d'écran	Cambia schermata	Alternar telas	Przełączanie ekranów	Переключение экранов	Перемикання екранів	Ekranlar arası geçiş
+Swipe left or right. The pill shows where you are, then hides.	Desliza a izquierda o derecha. La píldora muestra dónde estás y se oculta.	Wische nach links oder rechts. Die Pille zeigt, wo du bist, und verschwindet dann.	Balayez à gauche ou à droite. La pilule indique où vous êtes, puis se cache.	Scorri a sinistra o a destra. La pillola mostra dove sei e poi sparisce.	Deslize para a esquerda ou direita. A pílula mostra onde você está e some.	Przesuń w lewo lub w prawo. Pigułka pokazuje, gdzie jesteś, i znika.	Свайпайте влево или вправо. Пилюля покажет, где вы, и скроется.	Проводьте вліво або вправо. Пілюля показує, де ви, і зникає.	Sola veya sağa kaydır. Hap, nerede olduğunu gösterir ve gizlenir.
+Open Insights	Abrir estadísticas	Statistiken öffnen	Ouvrir les statistiques	Apri le statistiche	Abrir estatísticas	Otwórz statystyki	Открыть статистику	Відкрити статистику	İstatistikleri aç
+Tap the Today header to see how you are doing.	Toca el encabezado Hoy para ver cómo vas.	Tippe auf die Heute-Kopfzeile, um zu sehen, wie es läuft.	Touchez l'en-tête Aujourd'hui pour voir où vous en êtes.	Tocca l'intestazione Oggi per vedere come stai andando.	Toque no cabeçalho Hoje para ver como você está.	Dotknij nagłówka Dzisiaj, aby zobaczyć postępy.	Нажмите заголовок «Сегодня», чтобы увидеть результаты.	Торкніться заголовка «Сьогодні», щоб побачити результати.	Nasıl gittiğini görmek için Bugün başlığına dokun.
+Widget background	Fondo del widget	Widget-Hintergrund	Arrière-plan du widget	Sfondo del widget	Fundo do widget	Tło widżetu	Фон виджета	Тло віджета	Widget arka planı
+Light, dark, see-through or frosted	Claro, oscuro, transparente o esmerilado	Hell, dunkel, durchsichtig oder milchig	Clair, sombre, transparent ou givré	Chiaro, scuro, trasparente o satinato	Claro, escuro, transparente ou fosco	Jasne, ciemne, przezroczyste lub mrożone	Светлый, тёмный, прозрачный или матовый	Світле, темне, прозоре або матове	Açık, koyu, saydam veya buzlu
+Transparent	Transparente	Transparent	Transparent	Trasparente	Transparente	Przezroczyste	Прозрачный	Прозоре	Saydam
+Blur	Desenfoque	Unschärfe	Flou	Sfocatura	Desfoque	Rozmycie	Размытие	Розмиття	Bulanıklık
+Blur strength	Intensidad del desenfoque	Unschärfe-Stärke	Intensité du flou	Intensità sfocatura	Intensidade do desfoque	Siła rozmycia	Сила размытия	Сила розмиття	Bulanıklık gücü
+Widget text color	Color del texto del widget	Widget-Textfarbe	Couleur du texte du widget	Colore del testo del widget	Cor do texto do widget	Kolor tekstu widżetu	Цвет текста виджета	Колір тексту віджета	Widget metin rengi
+For see-through and blur backgrounds	Para fondos transparentes y difuminados	Für durchsichtige und unscharfe Hintergründe	Pour les fonds transparents et flous	Per sfondi trasparenti e sfocati	Para fundos transparentes e desfocados	Dla przezroczystego i rozmytego tła	Для прозрачного и размытого фона	Для прозорого та розмитого тла	Saydam ve bulanık arka planlar için
+Font size	Tamaño de fuente	Schriftgröße	Taille de police	Dimensione carattere	Tamanho da fonte	Rozmiar czcionki	Размер шрифта	Розмір шрифту	Yazı boyutu
+Icon size	Tamaño de icono	Symbolgröße	Taille des icônes	Dimensione icone	Tamanho do ícone	Rozmiar ikon	Размер значков	Розмір значків	Simge boyutu
+Clock size	Tamaño del reloj	Uhrgröße	Taille de l'horloge	Dimensione orologio	Tamanho do relógio	Rozmiar zegara	Размер часов	Розмір годинника	Saat boyutu
+Weeks shown	Semanas mostradas	Angezeigte Wochen	Semaines affichées	Settimane mostrate	Semanas exibidas	Wyświetlane tygodnie	Показано недель	Показано тижнів	Gösterilen haftalar
+How far back the squares go	Hasta cuándo llegan los cuadros	Wie weit die Felder zurückreichen	Jusqu'où remontent les carrés	Quanto indietro vanno i quadrati	Até quando vão os quadrados	Jak daleko wstecz sięgają kwadraty	Насколько далеко назад	Як далеко назад сягають квадрати	Karelerin ne kadar geriye gittiği
+Show	Mostrar	Anzeigen	Afficher	Mostra	Mostrar	Pokaż	Показывать	Показувати	Göster
+All tasks or one repeating task	Todas las tareas o una repetitiva	Alle Aufgaben oder eine wiederkehrende	Toutes les tâches ou une récurrente	Tutte le attività o una ripetuta	Todas as tarefas ou uma repetida	Wszystkie zadania lub jedno cykliczne	Все задачи или одна повторяющаяся	Усі завдання або одне повторюване	Tüm görevler veya bir tekrarlayan görev
+Save widget	Guardar widget	Widget speichern	Enregistrer le widget	Salva widget	Salvar widget	Zapisz widżet	Сохранить виджет	Зберегти віджет	Widget'ı kaydet
+Morning run	Correr por la mañana	Morgenlauf	Course du matin	Corsa mattutina	Corrida matinal	Poranny bieg	Утренняя пробежка	Ранкова пробіжка	Sabah koşusu
+Read 20 pages	Leer 20 páginas	20 Seiten lesen	Lire 20 pages	Leggere 20 pagine	Ler 20 páginas	Przeczytać 20 stron	Прочитать 20 страниц	Прочитати 20 сторінок	20 sayfa oku
+Plan tomorrow	Planear mañana	Morgen planen	Planifier demain	Pianificare domani	Planejar amanhã	Zaplanować jutro	Спланировать завтра	Спланувати завтра	Yarını planla
+day streak	días seguidos	Tage in Folge	jours d'affilée	giorni di fila	dias seguidos	dni z rzędu	дней подряд	днів поспіль	gün üst üste
+weeks	semanas	Wochen	semaines	settimane	semanas	tygodni	нед.	тижнів	hafta
+all done	todo hecho	alles erledigt	tout fait	tutto fatto	tudo feito	wszystko zrobione	всё сделано	усе зроблено	hepsi tamam
+partly	en parte	teilweise	en partie	in parte	em parte	częściowo	частично	частково	kısmen
+missed	perdido	verpasst	manqué	saltato	perdido	pominięte	пропущено	пропущено	kaçırıldı
+done	hecho	erledigt	fait	fatto	feito	zrobione	готово	зроблено	bitti
+skipped	omitido	übersprungen	passé	saltato	pulado	pominięto	пропущено	пропущено	atlandı
+planned	planeado	geplant	prévu	pianificato	planejado	zaplanowane	запланировано	заплановано	planlandı
+Tap to set up	Toca para configurar	Zum Einrichten tippen	Touchez pour régler	Tocca per impostare	Toque para configurar	Dotknij, aby ustawić	Нажмите для настройки	Торкніться, щоб налаштувати	Ayarlamak için dokun
+Countdown	Cuenta atrás	Countdown	Compte à rebours	Conto alla rovescia	Contagem regressiva	Odliczanie	Обратный отсчёт	Зворотний відлік	Geri sayım
+Pick a goal	Elige una meta	Ziel wählen	Choisissez un objectif	Scegli un obiettivo	Escolha uma meta	Wybierz cel	Выберите цель	Оберіть ціль	Hedef seç
+Week	Semana	Woche	Semaine	Settimana	Semana	Tydzień	Неделя	Тиждень	Hafta
+left this week	restante esta semana	diese Woche übrig	restant cette semaine	rimasto questa settimana	restante esta semana	zostało w tym tygodniu	осталось на этой неделе	залишилось цього тижня	bu hafta kaldı
+left this month	restante este mes	diesen Monat übrig	restant ce mois-ci	rimasto questo mese	restante este mês	zostało w tym miesiącu	осталось в этом месяце	залишилось цього місяця	bu ay kaldı
+until	hasta	bis	jusqu'au	fino al	até	do	до	до	şu tarihe kadar:
+elapsed	transcurrido	vergangen	écoulé	trascorso	decorrido	upłynęło	прошло	минуло	geçen
+Reached	Alcanzado	Erreicht	Atteint	Raggiunto	Alcançado	Osiągnięto	Достигнуто	Досягнуто	Ulaşıldı
+hours	horas	Stunden	heures	ore	horas	godzin	часов	годин	saat
+months	meses	Monate	mois	mesi	meses	miesięcy	месяцев	місяців	ay
+years	años	Jahre	ans	anni	anos	lat	лет	років	yıl
+Choose what to count down to	Elige hasta qué contar	Wähle, worauf du herunterzählst	Choisissez ce qu'il faut décompter	Scegli a cosa contare alla rovescia	Escolha até quando contar	Wybierz, do czego odliczać	Выберите, до чего вести отсчёт	Оберіть, до чого вести відлік	Neye kadar sayılacağını seç
+Count down to	Contar hasta	Herunterzählen bis	Décompte jusqu'à	Conto alla rovescia fino a	Contar até	Odliczaj do	Отсчёт до	Відлік до	Şuna kadar say
+Nothing	Nada	Nichts	Rien	Niente	Nada	Nic	Ничего	Нічого	Hiçbir şey
+End of this week	Fin de esta semana	Ende dieser Woche	Fin de cette semaine	Fine di questa settimana	Fim desta semana	Koniec tego tygodnia	Конец этой недели	Кінець цього тижня	Bu haftanın sonu
+End of this month	Fin de este mes	Ende dieses Monats	Fin de ce mois	Fine di questo mese	Fim deste mês	Koniec tego miesiąca	Конец этого месяца	Кінець цього місяця	Bu ayın sonu
+End of this year	Fin de este año	Ende dieses Jahres	Fin de cette année	Fine di quest'anno	Fim deste ano	Koniec tego roku	Конец этого года	Кінець цього року	Bu yılın sonu
+Pick a date	Elige una fecha	Datum wählen	Choisir une date	Scegli una data	Escolher uma data	Wybierz datę	Выбрать дату	Обрати дату	Tarih seç
+Name (optional)	Nombre (opcional)	Name (optional)	Nom (facultatif)	Nome (facoltativo)	Nome (opcional)	Nazwa (opcjonalnie)	Название (необязательно)	Назва (необов'язково)	İsim (isteğe bağlı)
+Show as	Mostrar como	Anzeigen als	Afficher en	Mostra come	Mostrar como	Pokaż jako	Показывать как	Показувати як	Şöyle göster
+Percent	Porcentaje	Prozent	Pourcentage	Percentuale	Porcentagem	Procent	Проценты	Відсотки	Yüzde
+Show how much time has passed	Muestra cuánto tiempo ha pasado	Zeigt, wie viel Zeit vergangen ist	Montre le temps écoulé	Mostra quanto tempo è passato	Mostra quanto tempo passou	Pokazuje, ile czasu upłynęło	Показывает, сколько времени прошло	Показує, скільки часу минуло	Ne kadar zaman geçtiğini gösterir
+Count in	Contar en	Zählen in	Compter en	Conta in	Contar em	Licz w	Считать в	Рахувати в	Birim
+Unit of the countdown	Unidad de la cuenta atrás	Einheit des Countdowns	Unité du compte à rebours	Unità del conto alla rovescia	Unidade da contagem	Jednostka odliczania	Единица отсчёта	Одиниця відліку	Geri sayımın birimi
+Default	Predeterminado	Standard	Par défaut	Predefinito	Padrão	Domyślnie	По умолчанию	За замовчуванням	Varsayılan
+Hours	Horas	Stunden	Heures	Ore	Horas	Godziny	Часы	Години	Saatler
+Days	Días	Tage	Jours	Giorni	Dias	Dni	Дни	Дні	Günler
+Weeks	Semanas	Wochen	Semaines	Settimane	Semanas	Tygodnie	Недели	Тижні	Haftalar
+Months	Meses	Monate	Mois	Mesi	Meses	Miesiące	Месяцы	Місяці	Aylar
+Years	Años	Jahre	Ans	Anni	Anos	Lata	Годы	Роки	Yıllar
+Back on	Vuelve el	Wieder ab	Retour le	Di nuovo da	Volta em	Wraca	Вернётся	Повернеться	Geri döner:
+Backup saved	Copia guardada	Sicherung gespeichert	Sauvegarde enregistrée	Backup salvato	Backup salvo	Kopia zapisana	Копия сохранена	Копію збережено	Yedek kaydedildi
+Backup failed	Error al copiar	Sicherung fehlgeschlagen	Échec de la sauvegarde	Backup non riuscito	Falha no backup	Nie udało się zapisać kopii	Не удалось сохранить копию	Не вдалося зберегти копію	Yedekleme başarısız
+Best streak	Mejor racha	Beste Serie	Meilleure série	Serie migliore	Melhor sequência	Najlepsza seria	Лучшая серия	Найкраща серія	En iyi seri
+Birth date	Fecha de nacimiento	Geburtsdatum	Date de naissance	Data di nascita	Data de nascimento	Data urodzenia	Дата рождения	Дата народження	Doğum tarihi
+Birth date and expected lifespan	Fecha de nacimiento y esperanza de vida	Geburtsdatum und erwartete Lebensdauer	Date de naissance et espérance de vie	Data di nascita e aspettativa di vita	Data de nascimento e expectativa de vida	Data urodzenia i oczekiwana długość życia	Дата рождения и ожидаемая продолжительность жизни	Дата народження та очікувана тривалість життя	Doğum tarihi ve beklenen yaşam süresi
+Completion	Finalización	Erledigung	Réussite	Completamento	Conclusão	Wykonanie	Выполнение	Виконання	Tamamlama
+Elapsed	Transcurrido	Vergangen	Écoulé	Trascorso	Decorrido	Upłynęło	Прошло	Минуло	Geçen
+Every	Cada	Alle	Tous les	Ogni	A cada	Co	Каждые	Кожні	Her
+Expected lifespan	Esperanza de vida	Erwartete Lebensdauer	Espérance de vie	Aspettativa di vita	Expectativa de vida	Oczekiwana długość życia	Ожидаемая продолжительность жизни	Очікувана тривалість життя	Beklenen yaşam süresi
+For the see-through background	Para el fondo transparente	Für den durchsichtigen Hintergrund	Pour le fond transparent	Per lo sfondo trasparente	Para o fundo transparente	Dla przezroczystego tła	Для прозрачного фона	Для прозорого тла	Saydam arka plan için
+Holding steady	Estable	Stabil	Stable	Stabile	Estável	Stabilnie	Без изменений	Без змін	Sabit
+Left	Restante	Übrig	Restant	Rimasto	Restante	Pozostało	Осталось	Залишилось	Kalan
+Light, dark, black or see-through	Claro, oscuro, negro o transparente	Hell, dunkel, schwarz oder durchsichtig	Clair, sombre, noir ou transparent	Chiaro, scuro, nero o trasparente	Claro, escuro, preto ou transparente	Jasne, ciemne, czarne lub przezroczyste	Светлый, тёмный, чёрный или прозрачный	Світле, темне, чорне або прозоре	Açık, koyu, siyah veya saydam
+My life	Mi vida	Mein Leben	Ma vie	La mia vita	Minha vida	Moje życie	Моя жизнь	Моє життя	Hayatım
+Next tip	Siguiente consejo	Nächster Tipp	Astuce suivante	Prossimo consiglio	Próxima dica	Następna wskazówka	Следующий совет	Наступна порада	Sonraki ipucu
+Show it as a percent	Muéstralo en porcentaje	Als Prozent anzeigen	L'afficher en pourcentage	Mostralo in percentuale	Mostrar em porcentagem	Pokaż jako procent	Показать в процентах	Показати у відсотках	Yüzde olarak göster
+Streak	Racha	Serie	Série	Serie	Sequência	Seria	Серия	Серія	Seri
+Swipe left or right to switch between Calendar, Today and Profile. The pill shows where you are.	Desliza a izquierda o derecha para cambiar entre Calendario, Hoy y Perfil. La píldora muestra dónde estás.	Wische nach links oder rechts, um zwischen Kalender, Heute und Profil zu wechseln. Die Pille zeigt, wo du bist.	Balayez à gauche ou à droite pour passer entre Calendrier, Aujourd'hui et Profil. La pilule indique où vous êtes.	Scorri a sinistra o a destra per passare tra Calendario, Oggi e Profilo. La pillola mostra dove sei.	Deslize para a esquerda ou direita para alternar entre Calendário, Hoje e Perfil. A pílula mostra onde você está.	Przesuń w lewo lub w prawo, aby przełączać Kalendarz, Dzisiaj i Profil. Pigułka pokazuje, gdzie jesteś.	Проведите влево или вправо, чтобы переключаться между Календарём, «Сегодня» и Профилем. Пилюля показывает, где вы.	Проведіть вліво або вправо, щоб перемикатися між Календарем, «Сьогодні» та Профілем. Пілюля показує, де ви.	Takvim, Bugün ve Profil arasında geçmek için sola veya sağa kaydır. Hap nerede olduğunu gösterir.
+Tap the Today header to open Insights.	Toca el encabezado Hoy para abrir las estadísticas.	Tippe auf die Heute-Kopfzeile, um die Statistiken zu öffnen.	Touchez l'en-tête Aujourd'hui pour ouvrir les statistiques.	Tocca l'intestazione Oggi per aprire le statistiche.	Toque no cabeçalho Hoje para abrir as estatísticas.	Dotknij nagłówka Dzisiaj, aby otworzyć statystyki.	Нажмите заголовок «Сегодня», чтобы открыть статистику.	Торкніться заголовка «Сьогодні», щоб відкрити статистику.	İstatistikleri açmak için Bugün başlığına dokun.
+Tap to set	Toca para fijar	Zum Festlegen tippen	Touchez pour définir	Tocca per impostare	Toque para definir	Dotknij, aby ustawić	Нажмите, чтобы задать	Торкніться, щоб задати	Ayarlamak için dokun
+Tap your name to rename yourself, or the photo to change it.	Toca tu nombre para cambiarlo, o la foto para cambiarla.	Tippe auf deinen Namen, um ihn zu ändern, oder aufs Foto, um es zu wechseln.	Touchez votre nom pour le changer, ou la photo pour la remplacer.	Tocca il tuo nome per cambiarlo, o la foto per sostituirla.	Toque no seu nome para mudá-lo, ou na foto para trocá-la.	Dotknij imienia, aby je zmienić, lub zdjęcia, aby je wymienić.	Нажмите на имя, чтобы изменить его, или на фото, чтобы заменить.	Торкніться імені, щоб змінити його, або фото, щоб замінити.	Adını değiştirmek için ada, fotoğrafı değiştirmek için fotoğrafa dokun.
+This week	Esta semana	Diese Woche	Cette semaine	Questa settimana	Esta semana	Ten tydzień	Эта неделя	Цей тиждень	Bu hafta
+Time left or time passed	Tiempo restante o transcurrido	Verbleibende oder vergangene Zeit	Temps restant ou écoulé	Tempo rimasto o trascorso	Tempo restante ou decorrido	Pozostały lub upłynięty czas	Оставшееся или прошедшее время	Залишений або минулий час	Kalan veya geçen süre
+Trending down	A la baja	Tendenz fallend	En baisse	In calo	Em queda	Trend spadkowy	Спад	Спад	Düşüşte
+Trending up	En alza	Tendenz steigend	En hausse	In crescita	Em alta	Trend wzrostowy	Рост	Зростання	Yükselişte
+day	día	Tag	jour	giorno	dia	dzień	день	день	gün
+days in a row	días seguidos	Tage in Folge	jours d'affilée	giorni di fila	dias seguidos	dni z rzędu	дней подряд	днів поспіль	gün üst üste
+last 12 months	últimos 12 meses	letzte 12 Monate	12 derniers mois	ultimi 12 mesi	últimos 12 meses	ostatnie 12 miesięcy	последние 12 месяцев	останні 12 місяців	son 12 ay
+left	restante	übrig	restant	rimasto	restante	pozostało	осталось	залишилось	kaldı
+left until	restante hasta	übrig bis	restant jusqu'au	rimasto fino al	restante até	zostało do	осталось до	залишилось до	şu tarihe kalan:
+none	ninguno	keine	aucun	nessuno	nenhum	brak	нет	немає	yok
+of life left	de vida restante	des Lebens übrig	de vie restante	di vita rimasta	de vida restante	życia pozostało	жизни осталось	життя залишилось	ömürden kalan
+of this month left	de este mes restante	dieses Monats übrig	de ce mois restant	di questo mese rimasto	deste mês restante	tego miesiąca pozostało	этого месяца осталось	цього місяця залишилось	bu aydan kalan
+of this month passed	de este mes transcurrido	dieses Monats vergangen	de ce mois écoulé	di questo mese trascorso	deste mês decorrido	tego miesiąca upłynęło	этого месяца прошло	цього місяця минуло	bu aydan geçen
+of this week left	de esta semana restante	dieser Woche übrig	de cette semaine restant	di questa settimana rimasto	desta semana restante	tego tygodnia pozostało	этой недели осталось	цього тижня залишилось	bu haftadan kalan
+of this week passed	de esta semana transcurrido	dieser Woche vergangen	de cette semaine écoulé	di questa settimana trascorso	desta semana decorrido	tego tygodnia upłynęło	этой недели прошло	цього тижня минуло	bu haftadan geçen
+passed	transcurrido	vergangen	écoulé	trascorso	decorrido	upłynęło	прошло	минуло	geçti
+points	puntos	Punkte	points	punti	pontos	punktów	п.п.	в.п.	puan
+since	desde	seit	depuis	dal	desde	od	с	з	şu tarihten beri:
+so far	hasta ahora	bisher	jusqu'ici	finora	até agora	do tej pory	пока	поки що	şimdiye kadar
+Move to tomorrow	Mover a mañana	Auf morgen verschieben	Reporter à demain	Sposta a domani	Mover para amanhã	Przenieś na jutro	Перенести на завтра	Перенести на завтра	Yarına taşı
+Shift all +1 day	Todo +1 día	Alle +1 Tag	Tout +1 jour	Tutto +1 giorno	Tudo +1 dia	Wszystko +1 dzień	Все +1 день	Усе +1 день	Hepsi +1 gün
+Moved to tomorrow	Movida a mañana	Auf morgen verschoben	Reportée à demain	Spostata a domani	Movida para amanhã	Przeniesiono na jutro	Перенесено на завтра	Перенесено на завтра	Yarına taşındı
+Schedule shifted by 1 day	Horario movido 1 día	Plan um 1 Tag verschoben	Planning décalé d'un jour	Pianificazione spostata di 1 giorno	Agenda adiada 1 dia	Harmonogram przesunięty o 1 dzień	Расписание сдвинуто на 1 день	Розклад зсунуто на 1 день	Plan 1 gün kaydırıldı
+How it's going	Cómo va todo	Wie läuft's	Comment ça se passe	Come sta andando	Como está indo	Jak idzie	Как идёт	Як іде	Nasıl gidiyor
+out of	de	von	sur	su	de	z	из	з	/
+Minimal mode	Modo minimalista	Minimalmodus	Mode minimal	Modalità minimal	Modo minimalista	Tryb minimalistyczny	Минимальный режим	Мінімальний режим	Minimal mod
+All done	Todo hecho	Alles erledigt	Tout est fait	Tutto fatto	Tudo feito	Wszystko zrobione	Всё сделано	Все зроблено	Hepsi tamam
+Simple dashboard, calendar and insights	Panel, calendario y estadísticas simples	Schlichte Übersicht, Kalender und Statistiken	Accueil, calendrier et statistiques épurés	Home, calendario e statistiche semplificati	Início, calendário e estatísticas simples	Prosty ekran, kalendarz i statystyki	Простой экран, календарь и статистика	Простий екран, календар і статистика	Sade ana ekran, takvim ve istatistikler
+To improve	A mejorar	Zu verbessern	À améliorer	Da migliorare	A melhorar	Do poprawy	Что улучшить	Що покращити	Geliştirilecek
+Menu	Menú	Menü	Menu	Menu	Menu	Menu	Меню	Меню	Menü
+Settings	Ajustes	Einstellungen	Réglages	Impostazioni	Configurações	Ustawienia	Настройки	Налаштування	Ayarlar
+Fully rounded	Totalmente redondeado	Vollständig abgerundet	Entièrement arrondi	Completamente arrotondato	Totalmente arredondado	W pełni zaokrąglone	Полностью скруглённые	Повністю заокруглені	Tamamen yuvarlak
+Round every box completely	Redondea todas las cajas por completo	Alle Felder komplett abrunden	Arrondit entièrement chaque boîte	Arrotonda completamente ogni riquadro	Arredonda todas as caixas por completo	Zaokrągla wszystkie pola całkowicie	Скругляет все блоки полностью	Заокруглює всі блоки повністю	Tüm kutuları tamamen yuvarlar
+Blurs the screen behind sheets and screens	Desenfoca la pantalla detrás de las hojas y pantallas	Verwischt den Hintergrund hinter Blättern und Seiten	Floute l’écran derrière les feuilles et écrans	Sfoca lo schermo dietro fogli e schermate	Desfoca a tela atrás de folhas e telas	Rozmywa ekran za arkuszami i ekranami	Размывает фон за окнами и экранами	Розмиває фон за вікнами та екранами	Sayfaların ve ekranların arkasını bulanıklaştırır
+Tap the menu to open the Calendar and Settings.	Toca el menú para abrir el Calendario y los Ajustes.	Tippe auf das Menü für Kalender und Einstellungen.	Touchez le menu pour ouvrir le Calendrier et les Réglages.	Tocca il menu per aprire Calendario e Impostazioni.	Toque no menu para abrir o Calendário e as Configurações.	Dotknij menu, aby otworzyć Kalendarz i Ustawienia.	Нажмите на меню, чтобы открыть Календарь и Настройки.	Натисніть меню, щоб відкрити Календар і Налаштування.	Takvim ve Ayarlar için menüye dokun.
+Tap “How it's going” to open Insights.	Toca «Cómo va todo» para abrir las Estadísticas.	Tippe auf „Wie läuft's“ für die Statistiken.	Touchez « Comment ça se passe » pour ouvrir les Statistiques.	Tocca «Come sta andando» per aprire le Statistiche.	Toque em «Como está indo» para abrir as Estatísticas.	Dotknij „Jak idzie”, aby otworzyć Statystyki.	Нажмите «Как идёт», чтобы открыть Статистику.	Натисніть «Як іде», щоб відкрити Статистику.	İstatistikler için «Nasıl gidiyor»a dokun.
+Names are in the language of the country	Los nombres están en el idioma del país	Die Namen sind in der Sprache des Landes	Les noms sont dans la langue du pays	I nomi sono nella lingua del paese	Os nomes estão no idioma do país	Nazwy są w języku danego kraju	Названия на языке страны	Назви мовою країни	İsimler ülkenin dilinde
+Description	Descripción	Beschreibung	Description	Descrizione	Descrição	Opis	Описание	Опис	Açıklama
+Done	Listo	Fertig	Terminé	Fatto	Concluído	Gotowe	Готово	Готово	Tamam
+Write anything…	Escribe lo que quieras…	Schreib, was du willst…	Écrivez ce que vous voulez…	Scrivi quello che vuoi…	Escreva o que quiser…	Napisz cokolwiek…	Пишите что угодно…	Пишіть що завгодно…	İstediğini yaz…
