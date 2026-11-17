@@ -57,7 +57,7 @@
             android:visibility="gone" />
     </LinearLayout>
 
-    <View
+    <FrameLayout
         android:id="@+id/item_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"

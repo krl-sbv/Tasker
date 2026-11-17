@@ -478,6 +478,7 @@ fun dayTitle(d: LocalDate, today: LocalDate): String = when (d) {
         "${d.dayOfMonth} ${d.month.getDisplayName(JTextStyle.FULL, Locale.getDefault())}"
 }
 
+@Suppress("UnusedBoxWithConstraintsScope")
 @Composable
 fun CalendarPage(
     state: AppState, onClose: () -> Unit, onOpen: (Task) -> Unit,

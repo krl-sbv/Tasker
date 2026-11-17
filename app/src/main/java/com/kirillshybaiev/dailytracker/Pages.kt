@@ -1062,6 +1062,7 @@ private fun SliderRow(
     }
 }
 
+@Suppress("UnusedBoxWithConstraintsScope")
 @Composable
 private fun WidgetPreviewPanel(kind: Int, look: WidgetLook) {
     val shape = RShape(24.dp)
