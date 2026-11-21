@@ -28,6 +28,7 @@ import android.widget.RemoteViews
 import android.widget.RemoteViewsService
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.compositionLocalOf
+import androidx.compose.ui.graphics.toArgb
 import androidx.lifecycle.AndroidViewModel
 import java.io.File
 import java.net.HttpURLConnection
@@ -55,6 +56,8 @@ import org.json.JSONObject
 
 // ═══════════════ Models ═══════════════
 
+enum class Kind { TASK, EVENT, BIRTHDAY }
+
 data class Task(
     val id: String,
     val title: String,
@@ -65,7 +68,14 @@ data class Task(
     val color: Int? = null,
     val interval: Int = 1,
     val weekdays: Int = 0,
-    val shifts: List<Pair<LocalDate, Int>> = emptyList()
+    val shifts: List<Pair<LocalDate, Int>> = emptyList(),
+    val kind: Kind = Kind.TASK,
+    val endTime: LocalTime? = null,
+    val spanDays: Int = 0,
+    val unit: Int = 0,
+    val location: String = "",
+    val alerts: List<Int> = emptyList(),
+    val deadline: LocalDate? = null
 )
 
 data class DoneRecord(val taskId: String, val title: String, val date: LocalDate, val repeating: Boolean)
@@ -90,7 +100,9 @@ data class AppState(
     val hintSeen: Boolean = false,
     val seenMainSwipe: Boolean = false,
     val seenInsightsSwipe: Boolean = false,
-    val pfpVersion: Long = 0L
+    val pfpVersion: Long = 0L,
+    val calView: Int = 30,
+    val accent: Int = 0
 ) {
     private val doneKeys: Set<String> by lazy { history.map { "${it.taskId}|${it.date}" }.toSet() }
     fun isDone(task: Task, date: LocalDate) = "${task.id}|$date" in doneKeys
@@ -109,8 +121,14 @@ fun Task.occursOn(d: LocalDate): Boolean {
 
 private fun Task.baseOccursOn(d: LocalDate): Boolean {
     if (d.isBefore(date)) return false
-    return if (weekdays != 0) ((weekdays shr (d.dayOfWeek.value - 1)) and 1) == 1
-    else ChronoUnit.DAYS.between(date, d) % interval == 0L
+    if (weekdays != 0) return ((weekdays shr (d.dayOfWeek.value - 1)) and 1) == 1
+    return when (unit) {
+        1 -> ChronoUnit.MONTHS.between(YearMonth.from(date), YearMonth.from(d)) % interval == 0L &&
+            d.dayOfMonth == min(date.dayOfMonth, d.lengthOfMonth())
+        2 -> (d.year - date.year) % interval == 0 && d.monthValue == date.monthValue &&
+            d.dayOfMonth == min(date.dayOfMonth, d.lengthOfMonth())
+        else -> ChronoUnit.DAYS.between(date, d) % interval == 0L
+    }
 }
 
 private fun Task.occursShifted(d: LocalDate, n: Int): Boolean {
@@ -127,13 +145,41 @@ fun intervalLabel(n: Int): String = when (n) {
     else -> "Every $n days"
 }
 
+fun unitLabel(unit: Int, n: Int): String = when (unit) {
+    1 -> if (n == 1) "Every month" else "Every $n months"
+    2 -> if (n == 1) "Every year" else "Every $n years"
+    else -> intervalLabel(n)
+}
+
+val Task.isTask: Boolean get() = kind == Kind.TASK
+
+fun Task.startCovering(d: LocalDate): LocalDate? {
+    for (k in 0..spanDays.coerceIn(0, 60)) {
+        val s = d.minusDays(k.toLong())
+        if (occursOn(s)) return s
+    }
+    return null
+}
+
+fun Task.durationMinutes(): Long = when {
+    time == null -> 0L
+    endTime == null -> if (isTask) 30L else 60L
+    else -> (ChronoUnit.MINUTES.between(time, endTime) + spanDays * 1440L).coerceAtLeast(15L)
+}
+
+fun Task.timeRange(): String? {
+    val t = time ?: return null
+    if (isTask || endTime == null) return t.toString()
+    return "$t–$endTime"
+}
+
 fun Task.repeatLabel(): String = when {
     !repeating -> "One time"
     weekdays == 127 -> "Every day"
     weekdays != 0 -> DayOfWeek.values()
         .filter { ((weekdays shr (it.value - 1)) and 1) == 1 }
         .joinToString(", ") { it.getDisplayName(JTextStyle.SHORT, Locale.getDefault()) }
-    else -> intervalLabel(interval)
+    else -> unitLabel(unit, interval)
 }
 
 fun Task.nextOccurrence(from: LocalDate): LocalDate? {
@@ -145,11 +191,28 @@ fun Task.nextOccurrence(from: LocalDate): LocalDate? {
 }
 
 fun AppState.tasksOn(d: LocalDate, includeSkipped: Boolean = false): List<Task> =
-    tasks.filter { it.occursOn(d) && (includeSkipped || !isSkipped(it, d)) }
+    tasks.filter { it.isTask && it.occursOn(d) && (includeSkipped || !isSkipped(it, d)) }
+
+fun AppState.eventsOn(d: LocalDate): List<Pair<Task, LocalDate>> =
+    tasks.asSequence().filter { !it.isTask }.mapNotNull { t -> t.startCovering(d)?.let { t to it } }
+        .filter { (t, s) -> !isSkipped(t, s) }
+        .sortedWith(compareBy({ it.first.time != null }, { it.first.time }))
+        .toList()
+
+fun AppState.deadlinesOn(d: LocalDate): List<Task> =
+    tasks.filter { it.isTask && !it.repeating && it.deadline == d && it.date != d && !isDone(it, it.date) && !isSkipped(it, it.date) }
+
+fun AppState.carried(today: LocalDate): List<Task> =
+    tasks.filter {
+        val dl = it.deadline
+        it.isTask && !it.repeating && dl != null && it.date.isBefore(today) && !dl.isBefore(today) &&
+            !isDone(it, it.date) && !isSkipped(it, it.date)
+    }.sortedBy { it.deadline }
 
 fun AppState.overdue(today: LocalDate): List<Task> =
-    tasks.filter { !it.repeating && it.date.isBefore(today) && !isDone(it, it.date) && !isSkipped(it, it.date) }
-        .sortedBy { it.date }
+    tasks.filter {
+        it.isTask && !it.repeating && (it.deadline ?: it.date).isBefore(today) && !isDone(it, it.date) && !isSkipped(it, it.date)
+    }.sortedBy { it.date }
 
 fun AppState.hasFutureSkips(task: Task, today: LocalDate): Boolean =
     skips.any { it.startsWith(task.id + "|") && !LocalDate.parse(it.substringAfter('|')).isBefore(today) }
@@ -226,6 +289,21 @@ fun AppState.dayKind(d: LocalDate, today: LocalDate): Int {
         d == today -> 4
         else -> 3
     }
+}
+
+fun AppState.dayRate(d: LocalDate, today: LocalDate): Float? {
+    if (d.isAfter(today)) return null
+    val t = tasksOn(d)
+    if (t.isEmpty()) return null
+    val done = t.count { isDone(it, d) }
+    if (d == today && done == 0) return null
+    return done.toFloat() / t.size
+}
+
+fun AppState.taskDayRate(task: Task, d: LocalDate, today: LocalDate): Float? = when (taskDayKind(task, d, today)) {
+    1 -> 1f
+    3 -> 0f
+    else -> null
 }
 
 fun AppState.taskDayKind(task: Task, d: LocalDate, today: LocalDate): Int {
@@ -332,6 +410,8 @@ object Store {
         root.put("reviewOn", s.reviewOn)
         root.put("pfp", s.pfpVersion)
         root.put("language", s.language)
+        root.put("calView", s.calView)
+        root.put("accent", s.accent)
         if (photo != null) root.put("photo", photo)
         if (!export) {
             root.put("onboarded", s.onboarded)
@@ -353,6 +433,13 @@ object Store {
                     put("interval", t.interval)
                     put("weekdays", t.weekdays)
                     if (t.shifts.isNotEmpty()) put("shifts", t.shifts.joinToString(";") { "${it.first}:${it.second}" })
+                    if (t.kind != Kind.TASK) put("kind", t.kind.name)
+                    t.endTime?.let { put("end", it.toString()) }
+                    if (t.spanDays > 0) put("span", t.spanDays)
+                    if (t.unit != 0) put("unit", t.unit)
+                    if (t.location.isNotBlank()) put("location", t.location)
+                    put("alerts", t.alerts.joinToString(","))
+                    t.deadline?.let { put("deadline", it.toString()) }
                 })
             }
         })
@@ -378,19 +465,28 @@ object Store {
             val arr = root.getJSONArray("tasks")
             for (i in 0 until arr.length()) {
                 val o = arr.getJSONObject(i)
+                val time = if (o.has("time")) LocalTime.parse(o.getString("time")) else null
                 tasks += Task(
                     id = o.getString("id"),
                     title = o.getString("title"),
                     description = o.optString("description", ""),
                     repeating = o.optBoolean("daily", false),
                     date = LocalDate.parse(o.getString("date")),
-                    time = if (o.has("time")) LocalTime.parse(o.getString("time")) else null,
+                    time = time,
                     color = if (o.has("color")) o.getInt("color") else null,
                     interval = o.optInt("interval", 1).coerceAtLeast(1),
                     weekdays = o.optInt("weekdays", 0),
                     shifts = o.optString("shifts", "").split(';').filter { it.contains(':') }.mapNotNull {
                         runCatching { LocalDate.parse(it.substringBefore(':')) to it.substringAfter(':').toInt() }.getOrNull()
-                    }
+                    },
+                    kind = runCatching { Kind.valueOf(o.optString("kind", "TASK")) }.getOrDefault(Kind.TASK),
+                    endTime = if (o.has("end")) runCatching { LocalTime.parse(o.getString("end")) }.getOrNull() else null,
+                    spanDays = o.optInt("span", 0).coerceIn(0, 60),
+                    unit = o.optInt("unit", 0).coerceIn(0, 2),
+                    location = o.optString("location", ""),
+                    alerts = if (o.has("alerts")) o.getString("alerts").split(',').mapNotNull { it.trim().toIntOrNull() }
+                        else if (time != null) listOf(0) else emptyList(),
+                    deadline = if (o.has("deadline")) runCatching { LocalDate.parse(o.getString("deadline")) }.getOrNull() else null
                 )
             }
             val history = mutableListOf<DoneRecord>()
@@ -430,7 +526,9 @@ object Store {
                 hintSeen = root.optBoolean("hintSeen", false),
                 seenMainSwipe = root.optBoolean("seenMainSwipe", false),
                 seenInsightsSwipe = root.optBoolean("seenInsightsSwipe", false),
-                pfpVersion = root.optLong("pfp", 0L)
+                pfpVersion = root.optLong("pfp", 0L),
+                calView = root.optInt("calView", 30).takeIf { it in setOf(0, 1, 3, 7, 30) } ?: 30,
+                accent = root.optInt("accent", 0).coerceIn(0, ACCENT_COUNT - 1)
             )
         } catch (e: Exception) {
             null
@@ -622,10 +720,13 @@ object Reminders {
     fun canExact(c: Context): Boolean =
         Build.VERSION.SDK_INT < 31 || c.getSystemService(AlarmManager::class.java).canScheduleExactAlarms()
 
-    private fun pending(c: Context, action: String, key: String, id: String? = null, snooze: Boolean = false): PendingIntent {
+    private fun pending(
+        c: Context, action: String, key: String, id: String? = null, snooze: Boolean = false, occ: LocalDate? = null
+    ): PendingIntent {
         val i = Intent(c, ReminderReceiver::class.java).setAction(action)
         if (id != null) i.putExtra("id", id)
         if (snooze) i.putExtra("snooze", true)
+        if (occ != null) i.putExtra("occ", occ.toString())
         return PendingIntent.getBroadcast(
             c, (action + key).hashCode(), i,
             PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
@@ -642,19 +743,33 @@ object Reminders {
 
     // ───────── task reminders ─────────
 
-    fun schedule(c: Context, task: Task) {
-        val time = task.time ?: return
-        val state = Store.get(c)
-        val now = LocalDateTime.now()
-        val today = LocalDate.now()
-        for (i in 0L..400L) {
-            val d = today.plusDays(i)
-            if (!task.occursOn(d) || state.isSkipped(task, d)) continue
-            val at = d.atTime(time)
-            if (!at.isAfter(now)) continue
-            setAlarm(c, millis(at), pending(c, ACTION_FIRE, task.id, task.id))
-            return
+    fun nextFire(task: Task, state: AppState, now: LocalDateTime): Pair<LocalDateTime, LocalDate>? {
+        if (task.alerts.isEmpty()) return null
+        val at = task.time ?: LocalTime.of(9, 0)
+        val maxBefore = task.alerts.maxOrNull()?.toLong() ?: 0L
+        val first = now.toLocalDate()
+        val last = first.plusDays(400L + maxBefore / 1440L + 1L)
+        var best: Pair<LocalDateTime, LocalDate>? = null
+        var d = first
+        while (!d.isAfter(last)) {
+            val start = d.atTime(at)
+            val b = best
+            if (b != null && start.minusMinutes(maxBefore).isAfter(b.first)) break
+            if (task.occursOn(d) && !state.isSkipped(task, d) && !(task.isTask && state.isDone(task, d))) {
+                for (a in task.alerts) {
+                    val f = start.minusMinutes(a.toLong())
+                    val cur = best
+                    if (f.isAfter(now) && (cur == null || f.isBefore(cur.first))) best = f to d
+                }
+            }
+            d = d.plusDays(1)
         }
+        return best
+    }
+
+    fun schedule(c: Context, task: Task) {
+        val next = nextFire(task, Store.get(c), LocalDateTime.now()) ?: return
+        setAlarm(c, millis(next.first), pending(c, ACTION_FIRE, task.id, task.id, occ = next.second))
     }
 
     fun cancel(c: Context, task: Task) {
@@ -708,26 +823,41 @@ object Reminders {
 
     // ───────── notifications ─────────
 
-    internal fun notifyTask(c: Context, task: Task) {
+    internal fun notifyTask(c: Context, task: Task, occ: LocalDate) {
+        val lang = Lang.resolve(Store.get(c).language)
         val open = PendingIntent.getActivity(c, 0, Intent(c, MainActivity::class.java), PendingIntent.FLAG_IMMUTABLE)
-        val done = Notification.Action.Builder(
-            Icon.createWithResource(c, R.drawable.ic_stat_check), "Done",
-            pending(c, ACTION_DONE, task.id, task.id)
-        ).build()
         val snooze = Notification.Action.Builder(
             Icon.createWithResource(c, R.drawable.ic_stat_snooze), "Snooze 10 min",
-            pending(c, ACTION_SNOOZE, task.id, task.id)
+            pending(c, ACTION_SNOOZE, task.id, task.id, occ = occ)
         ).build()
-        val n = Notification.Builder(c, CHANNEL)
+        val day = if (occ == LocalDate.now()) Lang.tr(lang, "Today")
+            else "${occ.dayOfWeek.getDisplayName(JTextStyle.SHORT, Locale.getDefault())} ${occ.dayOfMonth} " +
+                occ.month.getDisplayName(JTextStyle.SHORT, Locale.getDefault())
+        val text = when (task.kind) {
+            Kind.TASK -> task.description.ifBlank { if (task.repeating) "Repeating task – not done yet" else "Task reminder" }
+            Kind.EVENT -> listOfNotNull(day, task.timeRange() ?: Lang.tr(lang, "All day"), task.location.ifBlank { null })
+                .joinToString(" · ")
+            Kind.BIRTHDAY -> {
+                val age = occ.year - task.date.year
+                listOfNotNull(Lang.tr(lang, "Birthday"), day, if (age > 0) "$age" else null).joinToString(" · ")
+            }
+        }
+        val b = Notification.Builder(c, CHANNEL)
             .setSmallIcon(R.drawable.ic_stat_check)
             .setContentTitle(task.title)
-            .setContentText(task.description.ifBlank { if (task.repeating) "Repeating task – not done yet" else "Task reminder" })
+            .setContentText(text)
             .setContentIntent(open)
             .setAutoCancel(true)
-            .addAction(done)
-            .addAction(snooze)
-            .build()
-        c.getSystemService(NotificationManager::class.java).notify(task.id.hashCode(), n)
+        if (task.isTask) {
+            b.addAction(
+                Notification.Action.Builder(
+                    Icon.createWithResource(c, R.drawable.ic_stat_check), "Done",
+                    pending(c, ACTION_DONE, task.id, task.id, occ = occ)
+                ).build()
+            )
+        }
+        b.addAction(snooze)
+        c.getSystemService(NotificationManager::class.java).notify(task.id.hashCode(), b.build())
     }
 
     internal fun notifySummary(c: Context, id: Int, title: String, text: String) {
@@ -740,8 +870,11 @@ object Reminders {
         c.getSystemService(NotificationManager::class.java).notify(id, n)
     }
 
-    internal fun snooze(c: Context, task: Task) {
-        setAlarm(c, System.currentTimeMillis() + 10 * 60_000L, pending(c, ACTION_FIRE, task.id + "snooze", task.id, snooze = true))
+    internal fun snooze(c: Context, task: Task, occ: LocalDate) {
+        setAlarm(
+            c, System.currentTimeMillis() + 10 * 60_000L,
+            pending(c, ACTION_FIRE, task.id + "snooze", task.id, snooze = true, occ = occ)
+        )
     }
 
     internal fun nudgeText(s: AppState, today: LocalDate): String? {
@@ -772,12 +905,15 @@ class ReminderReceiver : BroadcastReceiver() {
     override fun onReceive(c: Context, intent: Intent) {
         val id = intent.getStringExtra("id")
         val today = LocalDate.now()
+        val occ = intent.getStringExtra("occ")?.let { runCatching { LocalDate.parse(it) }.getOrNull() } ?: today
         when (intent.action) {
             Reminders.ACTION_FIRE -> {
                 val s = Store.get(c)
                 val task = s.tasks.find { it.id == id } ?: return
-                if (task.occursOn(today) && !s.isDone(task, today) && !s.isSkipped(task, today)) Reminders.notifyTask(c, task)
-                if (task.repeating && !intent.getBooleanExtra("snooze", false)) Reminders.schedule(c, task)
+                if (task.occursOn(occ) && !s.isSkipped(task, occ) && !(task.isTask && s.isDone(task, occ))) {
+                    Reminders.notifyTask(c, task, occ)
+                }
+                if (!intent.getBooleanExtra("snooze", false)) Reminders.schedule(c, task)
             }
             Reminders.ACTION_MIDNIGHT -> {
                 val s = Store.get(c)
@@ -785,14 +921,14 @@ class ReminderReceiver : BroadcastReceiver() {
                 TasksWidget.refresh(c)
             }
             Reminders.ACTION_DONE -> {
-                Store.update(c) { s -> s.tasks.find { it.id == id }?.let { s.setDone(it, today, true) } ?: s }
+                Store.update(c) { s -> s.tasks.find { it.id == id }?.let { s.setDone(it, occ, true) } ?: s }
                 c.getSystemService(NotificationManager::class.java).cancel(id.hashCode())
                 TasksWidget.refresh(c)
             }
             Reminders.ACTION_SNOOZE -> {
                 val task = Store.get(c).tasks.find { it.id == id } ?: return
                 c.getSystemService(NotificationManager::class.java).cancel(id.hashCode())
-                Reminders.snooze(c, task)
+                Reminders.snooze(c, task, occ)
             }
             Reminders.ACTION_NUDGE -> {
                 val s = Store.get(c)
@@ -966,6 +1102,7 @@ class TrackerViewModel(app: Application) : AndroidViewModel(app) {
     fun bumpPhoto() { mutate { it.copy(pfpVersion = System.currentTimeMillis()) } }
     fun setTheme(theme: Int) { mutate { it.copy(theme = theme) } }
     fun setSpringy(on: Boolean) { mutate { it.copy(springy = on) } }
+    fun setAccent(i: Int) { mutate { it.copy(accent = i) } }
     fun setShowQuote(on: Boolean) { mutate { it.copy(showQuote = on) } }
     fun setShowHolidays(on: Boolean) { mutate { it.copy(showHolidays = on) } }
     fun markHintSeen() { mutate { it.copy(hintSeen = true) } }
@@ -984,6 +1121,7 @@ class TrackerViewModel(app: Application) : AndroidViewModel(app) {
     private val main = android.os.Handler(android.os.Looper.getMainLooper())
 
     fun setBlur(mode: Int) { mutate { it.copy(blurMode = mode) } }
+    fun setCalView(v: Int) { mutate { it.copy(calView = v) } }
 
     fun setWeekStart(day: Int) {
         val s = mutate { it.copy(weekStartDay = day) }
@@ -1012,7 +1150,7 @@ class TrackerViewModel(app: Application) : AndroidViewModel(app) {
             if (!withSettings) merged else merged.copy(
                 name = imported.name, theme = imported.theme, springy = imported.springy, showQuote = imported.showQuote,
                 weekStartDay = imported.weekStartDay, country = imported.country, language = imported.language,
-                blurMode = imported.blurMode, showHolidays = imported.showHolidays,
+                blurMode = imported.blurMode, showHolidays = imported.showHolidays, accent = imported.accent,
                 nudgeOn = imported.nudgeOn, reviewOn = imported.reviewOn
             )
         }
@@ -1075,31 +1213,39 @@ class CalendarWidget : BitmapWidget(CALENDAR)
 class InsightsWidget : BitmapWidget(HEATMAP)
 
 object WidgetBitmaps {
-    private val GREEN = 0xFF3DDC84.toInt()
-    private val RED = 0xFFFF6B6B.toInt()
+    private val GREEN = 0xFF2FC56F.toInt()
+    private val RED = 0xFFF2474E.toInt()
 
     private class Art(val bmp: Bitmap, val cv: Canvas, val sc: Float) {
         val w get() = bmp.width.toFloat()
         val h get() = bmp.height.toFloat()
     }
 
+    fun cornerDp(c: Context): Float {
+        if (Build.VERSION.SDK_INT < 31) return 24f
+        val px = runCatching { c.resources.getDimension(android.R.dimen.system_app_widget_background_radius) }.getOrNull() ?: return 24f
+        return (px / c.resources.displayMetrics.density).coerceIn(14f, 32f)
+    }
+
     private fun art(c: Context, wDp: Int, hDp: Int, bg: Int): Art {
         val sc = min(c.resources.displayMetrics.density, 1100f / max(wDp, hDp))
         val bmp = Bitmap.createBitmap(max(1, (wDp * sc).toInt()), max(1, (hDp * sc).toInt()), Bitmap.Config.ARGB_8888)
         val cv = Canvas(bmp)
-        cv.drawRoundRect(
-            RectF(0f, 0f, bmp.width.toFloat(), bmp.height.toFloat()), 28 * sc, 28 * sc,
-            Paint(Paint.ANTI_ALIAS_FLAG).apply { color = bg }
-        )
+        val r = cornerDp(c) * sc
+        cv.drawRoundRect(RectF(0f, 0f, bmp.width.toFloat(), bmp.height.toFloat()), r, r, Paint(Paint.ANTI_ALIAS_FLAG).apply { color = bg })
         return Art(bmp, cv, sc)
     }
 
-    private fun paint(color: Int, size: Float, bold: Boolean = false, align: Paint.Align = Paint.Align.LEFT) =
+    private fun paint(color: Int, size: Float, bold: Boolean = false, align: Paint.Align = Paint.Align.LEFT, medium: Boolean = false) =
         Paint(Paint.ANTI_ALIAS_FLAG).apply {
             this.color = color
             textSize = size
             textAlign = align
-            typeface = Typeface.create("sans-serif", if (bold) Typeface.BOLD else Typeface.NORMAL)
+            typeface = when {
+                bold -> Typeface.create("sans-serif", Typeface.BOLD)
+                medium -> Typeface.create("sans-serif-medium", Typeface.NORMAL)
+                else -> Typeface.create("sans-serif", Typeface.NORMAL)
+            }
         }
 
     private fun Canvas.centered(text: String, cx: Float, cy: Float, p: Paint) {
@@ -1108,56 +1254,101 @@ object WidgetBitmaps {
     }
 
     private fun fill(color: Int) = Paint(Paint.ANTI_ALIAS_FLAG).apply { this.color = color }
-    private fun ring(color: Int, width: Float) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
+    private fun ring(color: Int, width: Float, round: Boolean = false) = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         this.color = color
         style = Paint.Style.STROKE
         strokeWidth = width
+        if (round) strokeCap = Paint.Cap.ROUND
+    }
+
+    private fun alpha(color: Int, a: Int) = (color and 0x00FFFFFF) or (a.coerceIn(0, 255) shl 24)
+
+    private fun mix(a: Int, b: Int, t: Float): Int {
+        val k = t.coerceIn(0f, 1f)
+        fun ch(sh: Int) = (((a ushr sh) and 0xFF) + (((b ushr sh) and 0xFF) - ((a ushr sh) and 0xFF)) * k).roundToInt().coerceIn(0, 255)
+        return (ch(24) shl 24) or (ch(16) shl 16) or (ch(8) shl 8) or ch(0)
+    }
+
+    private fun zero(p: WidgetPalette) = alpha(p.partial, 0x8C)
+
+    private fun rateColor(p: WidgetPalette, r: Float) = mix(zero(p), GREEN, r)
+
+    fun progressRing(c: Context, p: WidgetPalette, accent: Int, done: Int, total: Int, sizeDp: Float, fs: Float): Bitmap {
+        val sc = c.resources.displayMetrics.density
+        val px = max(1, (sizeDp * sc).toInt())
+        val bmp = Bitmap.createBitmap(px, px, Bitmap.Config.ARGB_8888)
+        val cv = Canvas(bmp)
+        val sw = 4.5f * sc
+        val box = RectF(sw / 2f, sw / 2f, px - sw / 2f, px - sw / 2f)
+        cv.drawArc(box, 0f, 360f, false, ring(p.faint, sw))
+        val f = if (total > 0) done.toFloat() / total else 0f
+        val col = if (total > 0 && done >= total) GREEN else accent
+        if (f > 0f) cv.drawArc(box, -90f, 360f * f, false, ring(col, sw, round = true))
+        cv.centered(if (total > 0 && done >= total) "✓" else "$done", px / 2f, px / 2f, paint(p.text, px * 0.3f * fs.coerceIn(0.8f, 1.3f), bold = true, align = Paint.Align.CENTER))
+        return bmp
     }
 
     fun calendar(c: Context, look: WidgetLook, wDp: Int, hDp: Int): Bitmap {
         val s = Store.get(c)
         val p = WidgetStyle.palette(c, look)
+        val accent = WidgetStyle.accent(c, p, s)
+        val onAccent = if (android.graphics.Color.luminance(accent) > 0.55f) 0xFF111114.toInt() else 0xFFFFFFFF.toInt()
         val fs = look.fontScale
         val today = LocalDate.now()
         val a = art(c, wDp, hDp, p.bgColor)
         val sc = a.sc
         val pad = 18 * sc
         val ym = YearMonth.from(today)
+        val lang = Lang.resolve(s.language)
 
-        a.cv.drawText(
-            "${ym.month.getDisplayName(JTextStyle.FULL, Locale.getDefault())} ${ym.year}",
-            pad, pad + 19 * sc * fs, paint(p.text, 22 * sc * fs, bold = true)
-        )
-        a.cv.drawText("${s.streak(today)}", a.w - pad, pad + 25 * sc * fs, paint(p.text, 30 * sc * fs, bold = true, align = Paint.Align.RIGHT))
-        a.cv.drawText(
-            Lang.tr(Lang.resolve(s.language), "day streak"), a.w - pad, pad + 40 * sc * fs,
-            paint(p.secondary, 10.5f * sc * fs, align = Paint.Align.RIGHT)
-        )
+        val name = ym.month.getDisplayName(JTextStyle.FULL_STANDALONE, Locale.getDefault()).replaceFirstChar { it.titlecase(Locale.getDefault()) }
+        val titleP = paint(p.text, 21 * sc * fs, bold = true)
+        val base = pad + 20 * sc * fs
+        a.cv.drawText(name, pad, base, titleP)
+        a.cv.drawText(" ${ym.year}", pad + titleP.measureText(name), base, paint(p.secondary, 21 * sc * fs))
 
-        val colW = (a.w - 2 * pad) / 7f
-        val labelPaint = paint(p.secondary, 12 * sc * fs, align = Paint.Align.CENTER)
-        val start = s.weekStartDay
-        val order = DayOfWeek.values().let { v -> v.drop(start - 1) + v.take(start - 1) }
-        order.forEachIndexed { i, d ->
-            a.cv.centered(d.getDisplayName(JTextStyle.NARROW, Locale.getDefault()), pad + colW * (i + 0.5f), pad + 64 * sc * fs, labelPaint)
+        val streak = s.streak(today)
+        if (streak > 0) {
+            val label = "$streak ${Lang.tr(lang, "day streak")}"
+            val lp = paint(accent, 11 * sc * fs, medium = true, align = Paint.Align.CENTER)
+            val tw = lp.measureText(label)
+            val ph = 22 * sc * fs
+            val pw = tw + 20 * sc
+            val r = RectF(a.w - pad - pw, base - ph * 0.78f, a.w - pad, base + ph * 0.22f)
+            a.cv.drawRoundRect(r, ph / 2f, ph / 2f, fill(alpha(accent, 0x24)))
+            a.cv.centered(label, r.centerX(), r.centerY(), lp)
         }
 
-        val top = pad + 76 * sc * fs
-        val rowH = (a.h - pad - top) / 6f
-        val diameter = min(colW, rowH) * 0.84f * look.iconScale.coerceIn(0.5f, 1.15f)
-        val numPaint = paint(p.text, diameter * 0.42f, align = Paint.Align.CENTER)
-        val numOnColor = paint(0xFFFFFFFF.toInt(), diameter * 0.42f, bold = true, align = Paint.Align.CENTER)
+        val colW = (a.w - 2 * pad) / 7f
+        val labelPaint = paint(p.secondary, 11 * sc * fs, medium = true, align = Paint.Align.CENTER)
+        val start = s.weekStartDay
+        val order = DayOfWeek.values().let { v -> v.drop(start - 1) + v.take(start - 1) }
+        val labelsY = pad + 50 * sc * fs
+        order.forEachIndexed { i, d ->
+            a.cv.centered(d.getDisplayName(JTextStyle.NARROW, Locale.getDefault()), pad + colW * (i + 0.5f), labelsY, labelPaint)
+        }
+
+        val top = labelsY + 10 * sc * fs
+        val rowH = (a.h - pad * 0.7f - top) / 6f
+        val diameter = min(colW, rowH) * 0.82f * look.iconScale.coerceIn(0.5f, 1.15f)
+        val numPaint = paint(p.text, diameter * 0.4f, align = Paint.Align.CENTER)
+        val pastPaint = paint(p.secondary, diameter * 0.4f, align = Paint.Align.CENTER)
+        val todayPaint = paint(onAccent, diameter * 0.42f, bold = true, align = Paint.Align.CENTER)
         val offset = (ym.atDay(1).dayOfWeek.value - start + 7) % 7
+        val dot = max(1.6f * sc, diameter * 0.055f)
         for (day in 1..ym.lengthOfMonth()) {
             val date = ym.atDay(day)
             val idx = offset + day - 1
             val cx = pad + colW * (idx % 7 + 0.5f)
             val cy = top + rowH * (idx / 7 + 0.5f)
-            val kind = s.dayKind(date, today)
-            val color = when (kind) { 1 -> GREEN; 2 -> p.partial; 3 -> RED; else -> 0 }
-            if (color != 0) a.cv.drawCircle(cx, cy, diameter / 2f, fill(color))
-            if (date == today) a.cv.drawCircle(cx, cy, diameter / 2f + 2.5f * sc, ring(p.text, 2f * sc))
-            a.cv.centered("$day", cx, cy, if (color != 0) numOnColor else numPaint)
+            if (date == today) {
+                a.cv.drawCircle(cx, cy, diameter / 2f, fill(accent))
+                a.cv.centered("$day", cx, cy, todayPaint)
+                continue
+            }
+            a.cv.centered("$day", cx, cy - diameter * 0.04f, if (date.isBefore(today)) pastPaint else numPaint)
+            val r = s.dayRate(date, today)
+            if (r != null) a.cv.drawCircle(cx, cy + diameter * 0.3f, dot, fill(rateColor(p, r)))
         }
         return a.bmp
     }
@@ -1174,57 +1365,66 @@ object WidgetBitmaps {
         val pad = 18 * sc
         val lang = Lang.resolve(s.language)
 
-        a.cv.drawText(task?.title ?: Lang.tr(lang, "Overview"), pad, pad + 15 * sc * fs, paint(p.text, 19 * sc * fs, bold = true))
-        a.cv.drawText("$weeks ${Lang.tr(lang, "weeks")}", a.w - pad, pad + 14 * sc * fs, paint(p.secondary, 12 * sc * fs, align = Paint.Align.RIGHT))
+        val first = weekStart(today, s.weekStartDay).minusWeeks((weeks - 1).toLong())
+        val rates = Array(weeks * 7) { i ->
+            val day = first.plusDays(i.toLong())
+            if (task == null) s.dayRate(day, today) else s.taskDayRate(task, day, today)
+        }
+        val counted = rates.filterNotNull()
+        val rate = if (counted.isEmpty()) "–" else "${(counted.average() * 100).roundToInt()}%"
 
-        val labels = if (task == null) listOf(GREEN to Lang.tr(lang, "all done"), p.partial to Lang.tr(lang, "partly"), RED to Lang.tr(lang, "missed"))
-        else listOf(GREEN to Lang.tr(lang, "done"), RED to Lang.tr(lang, "missed"), p.partial to Lang.tr(lang, "skipped"))
-        val lp = paint(p.secondary, 11 * sc * fs)
+        val titleP = paint(p.text, 17 * sc * fs, bold = true)
+        val title = task?.title ?: Lang.tr(lang, "Overview")
+        val rateP = paint(p.text, 22 * sc * fs, bold = true, align = Paint.Align.RIGHT)
+        val maxTitle = a.w - 2 * pad - rateP.measureText("100%") - 12 * sc
+        var shown = title
+        while (shown.length > 1 && titleP.measureText(shown) > maxTitle) shown = shown.dropLast(2) + "…"
+        a.cv.drawText(shown, pad, pad + 15 * sc * fs, titleP)
+        a.cv.drawText("$weeks ${Lang.tr(lang, "weeks")}", pad, pad + 32 * sc * fs, paint(p.secondary, 11.5f * sc * fs))
+        a.cv.drawText(rate, a.w - pad, pad + 19 * sc * fs, rateP)
+
+        val lp = paint(p.secondary, 10.5f * sc * fs)
         val legendH = 12 * sc * fs
-        val legendGap = 12 * sc
+        val legendGap = 10 * sc
 
-        val areaTop = pad + 30 * sc * fs
+        val areaTop = pad + 42 * sc * fs
         val areaBottom = a.h - pad
-        val gap = 3 * sc
+        val gap = 3.2f * sc
         val availW = a.w - 2 * pad
         val availH = areaBottom - areaTop - legendGap - legendH
-        val cellW0 = (availW - gap * (weeks - 1)) / weeks
-        val fitH = (availH - gap * 6) / 7f
-        val cell = max(2 * sc, min(cellW0, fitH))
-        val cellW = cell
-        val cellH = cell
-        val gridW = weeks * cellW + (weeks - 1) * gap
-        val gridH = 7 * cellH + 6 * gap
+        val cell = max(2 * sc, min((availW - gap * (weeks - 1)) / weeks, (availH - gap * 6) / 7f))
+        val gridW = weeks * cell + (weeks - 1) * gap
+        val gridH = 7 * cell + 6 * gap
         val blockH = gridH + legendGap + legendH
         val x0 = (a.w - gridW) / 2f
         val y0 = areaTop + (areaBottom - areaTop - blockH) / 2f
-
-        val first = weekStart(today, s.weekStartDay).minusWeeks((weeks - 1).toLong())
-        val corner = min(cellW, cellH) * 0.28f
+        val corner = cell * 0.3f
         for (col in 0 until weeks) {
             for (row in 0 until 7) {
-                val day = first.plusDays((col * 7 + row).toLong())
-                val kind = if (task == null) s.dayKind(day, today) else s.taskDayKind(task, day, today)
-                val color = if (task == null) {
-                    when (kind) { 1 -> GREEN; 2 -> p.partial; 3 -> RED; else -> p.faint }
-                } else {
-                    when (kind) { 1 -> GREEN; 2 -> p.partial; 3 -> (RED and 0x00FFFFFF) or 0x99000000.toInt(); else -> p.faint }
-                }
-                val x = x0 + col * (cellW + gap)
-                val y = y0 + row * (cellH + gap)
-                val r = RectF(x, y, x + cellW, y + cellH)
+                val i = col * 7 + row
+                val day = first.plusDays(i.toLong())
+                val color = rates[i]?.let { rateColor(p, it) } ?: p.faint
+                val x = x0 + col * (cell + gap)
+                val y = y0 + row * (cell + gap)
+                val r = RectF(x, y, x + cell, y + cell)
                 a.cv.drawRoundRect(r, corner, corner, fill(color))
-                if (day == today) a.cv.drawRoundRect(r, corner, corner, ring(p.text, max(1.5f * sc, min(cellW, cellH) * 0.1f)))
+                if (day == today) {
+                    val inset = -max(1.2f * sc, cell * 0.1f)
+                    val rr = RectF(r.left + inset, r.top + inset, r.right - inset, r.bottom - inset)
+                    a.cv.drawRoundRect(rr, corner * 1.3f, corner * 1.3f, ring(p.text, max(1.2f * sc, cell * 0.09f)))
+                }
             }
         }
 
         var x = x0
         val y = y0 + gridH + legendGap + legendH * 0.8f
-        labels.forEach { (color, label) ->
-            a.cv.drawCircle(x + 4.5f * sc, y - 4f * sc * fs, 4.5f * sc, fill(color))
-            a.cv.drawText(label, x + 14 * sc, y, lp)
-            x += 14 * sc + lp.measureText(label) + 16 * sc
+        a.cv.drawText("0%", x, y, lp)
+        x += lp.measureText("0%") + 6 * sc
+        for (k in 0..4) {
+            a.cv.drawRoundRect(RectF(x, y - 8.5f * sc * fs, x + 8.5f * sc, y), 2.5f * sc, 2.5f * sc, fill(rateColor(p, k / 4f)))
+            x += 11 * sc
         }
+        a.cv.drawText("100%", x + 3 * sc, y, lp)
         return a.bmp
     }
 }
@@ -1246,6 +1446,11 @@ data class WidgetLook(
 object WidgetStyle {
     val names = listOf("Light", "Dark", "Black", "Transparent")
     const val TRANSPARENT = 3
+
+    fun accent(c: Context, p: WidgetPalette, s: AppState = Store.get(c)): Int {
+        val darkBg = android.graphics.Color.luminance(p.text) > 0.5f
+        return accentColor(c, s.accent, darkBg).toArgb()
+    }
 
     fun isNight(c: Context) =
         (c.resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
@@ -1338,6 +1543,9 @@ open class BaseTasksWidget(private val clock: Boolean) : AppWidgetProvider() {
             val p = WidgetStyle.palette(c, look)
             val fs = look.fontScale
             val today = LocalDate.now()
+            val state = Store.get(c)
+            val lang = Lang.resolve(state.language)
+            val accent = WidgetStyle.accent(c, p, state)
             val views = RemoteViews(c.packageName, R.layout.widget_tasks)
 
             val seeThrough = (p.bgColor ushr 24) == 0
@@ -1345,20 +1553,31 @@ open class BaseTasksWidget(private val clock: Boolean) : AppWidgetProvider() {
             if (!seeThrough) views.setInt(R.id.widget_bg, "setColorFilter", p.bgColor)
             views.setViewVisibility(R.id.widget_title, if (clock) View.GONE else View.VISIBLE)
             views.setViewVisibility(R.id.widget_clock, if (clock) View.VISIBLE else View.GONE)
-            views.setTextColor(R.id.widget_title, p.text)
+            views.setTextColor(R.id.widget_title, accent)
             views.setTextColor(R.id.widget_clock, p.text)
-            views.setTextViewTextSize(R.id.widget_title, TypedValue.COMPLEX_UNIT_SP, 32f * fs)
+            views.setTextViewTextSize(R.id.widget_title, TypedValue.COMPLEX_UNIT_SP, 13f * fs)
             if (clock) views.setTextViewTextSize(R.id.widget_clock, TypedValue.COMPLEX_UNIT_SP, look.clockSize.toFloat())
-            views.setTextColor(R.id.widget_date, p.secondary)
-            views.setTextViewTextSize(R.id.widget_date, TypedValue.COMPLEX_UNIT_SP, 14f * fs)
+            views.setTextColor(R.id.widget_date, if (clock) p.secondary else p.text)
+            views.setTextViewTextSize(R.id.widget_date, TypedValue.COMPLEX_UNIT_SP, (if (clock) 14f else 19f) * fs)
             views.setTextColor(R.id.widget_empty, p.secondary)
             views.setTextViewTextSize(R.id.widget_empty, TypedValue.COMPLEX_UNIT_SP, 15f * fs)
-            views.setTextViewText(R.id.widget_title, Lang.tr(Lang.resolve(Store.get(c).language), "Today"))
-            views.setTextViewText(R.id.widget_empty, Lang.tr(Lang.resolve(Store.get(c).language), "Nothing planned for today"))
+            views.setTextViewText(R.id.widget_title, Lang.tr(lang, "Today"))
+            views.setTextViewText(R.id.widget_empty, Lang.tr(lang, "Nothing planned for today"))
             views.setTextViewText(
                 R.id.widget_date,
                 today.format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.getDefault()))
+                    .replaceFirstChar { it.titlecase(Locale.getDefault()) }
             )
+            val dayTasks = state.tasksOn(today)
+            if (dayTasks.isEmpty()) views.setViewVisibility(R.id.widget_ring, View.GONE)
+            else {
+                views.setViewVisibility(R.id.widget_ring, View.VISIBLE)
+                val ringDp = 44f * look.iconScale.coerceIn(0.7f, 1.4f)
+                views.setImageViewBitmap(
+                    R.id.widget_ring,
+                    WidgetBitmaps.progressRing(c, p, accent, dayTasks.count { state.isDone(it, today) }, dayTasks.size, ringDp, fs)
+                )
+            }
 
             val svc = Intent(c, TasksWidgetService::class.java).apply {
                 putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id)
@@ -1414,6 +1633,7 @@ class TasksWidgetService : RemoteViewsService() {
         private var today = LocalDate.now()
         private var look = WidgetLook()
         private var p = WidgetStyle.palette(c, look)
+        private var accent = 0
 
         override fun onCreate() {}
         override fun onDataSetChanged() {
@@ -1422,6 +1642,7 @@ class TasksWidgetService : RemoteViewsService() {
             items = state.tasksOn(today)
             look = WidgetPrefs.look(c, widgetId)
             p = WidgetStyle.palette(c, look)
+            accent = WidgetStyle.accent(c, p, state)
         }
         override fun onDestroy() {}
         override fun getCount() = items.size
@@ -1430,11 +1651,11 @@ class TasksWidgetService : RemoteViewsService() {
             val done = state.isDone(t, today)
             val rv = RemoteViews(c.packageName, R.layout.widget_item)
 
-            val circleColor = t.color ?: if (done) p.primary else p.ring
+            val circleColor = t.color ?: if (done) accent else p.ring
             rv.setImageViewResource(R.id.item_circle, if (done) R.drawable.widget_dot else R.drawable.widget_ring)
             rv.setInt(R.id.item_circle, "setColorFilter", circleColor)
             rv.setViewVisibility(R.id.item_tick, if (done) View.VISIBLE else View.GONE)
-            rv.setTextColor(R.id.item_tick, if (t.color != null) 0xFFFFFFFF.toInt() else p.onPrimary)
+            rv.setTextColor(R.id.item_tick, if (android.graphics.Color.luminance(circleColor) > 0.55f) 0xFF111114.toInt() else 0xFFFFFFFF.toInt())
 
             val fs = look.fontScale
             val sz = look.iconScale
@@ -1443,10 +1664,9 @@ class TasksWidgetService : RemoteViewsService() {
             rv.setTextViewTextSize(R.id.item_tick, TypedValue.COMPLEX_UNIT_SP, 14f * sz)
             if (Build.VERSION.SDK_INT >= 31) {
                 listOf(R.id.item_circle_box, R.id.item_circle, R.id.item_tick).forEach {
-                    rv.setViewLayoutWidth(it, 24f * sz, TypedValue.COMPLEX_UNIT_DIP)
-                    rv.setViewLayoutHeight(it, 24f * sz, TypedValue.COMPLEX_UNIT_DIP)
+                    rv.setViewLayoutWidth(it, 22f * sz, TypedValue.COMPLEX_UNIT_DIP)
+                    rv.setViewLayoutHeight(it, 22f * sz, TypedValue.COMPLEX_UNIT_DIP)
                 }
-                rv.setViewLayoutMargin(R.id.item_divider, RemoteViews.MARGIN_START, 24f * sz + 14f, TypedValue.COMPLEX_UNIT_DIP)
             }
 
             rv.setTextViewText(R.id.item_title, t.title)
@@ -1459,8 +1679,6 @@ class TasksWidgetService : RemoteViewsService() {
                 rv.setTextColor(R.id.item_time, p.secondary)
             } else rv.setViewVisibility(R.id.item_time, View.GONE)
 
-            rv.setInt(R.id.item_divider, "setBackgroundColor", p.divider)
-            rv.setViewVisibility(R.id.item_divider, if (position == items.size - 1) View.INVISIBLE else View.VISIBLE)
 
             rv.setOnClickFillInIntent(R.id.item_root, Intent().putExtra("id", t.id))
             return rv

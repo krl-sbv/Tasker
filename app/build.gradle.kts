@@ -15,15 +15,16 @@ android {
         applicationId = "com.kirillshybaiev.dailytracker"
         minSdk = 26
         targetSdk = 36
-        versionCode = 6
-        versionName = "0.1.6"
+        versionCode = 9
+        versionName = "0.3.6"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"

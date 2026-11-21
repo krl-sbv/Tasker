@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <!-- background: light / dark / black, see-through, or frosted. Colour and see-through level are set from code. -->
     <ImageView
         android:id="@+id/widget_bg"
         android:layout_width="match_parent"
@@ -16,44 +15,64 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:paddingLeft="20dp"
-        android:paddingTop="18dp"
-        android:paddingRight="20dp"
-        android:paddingBottom="10dp">
+        android:paddingLeft="18dp"
+        android:paddingTop="16dp"
+        android:paddingRight="16dp"
+        android:paddingBottom="8dp">
 
         <LinearLayout
             android:id="@+id/widget_header"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="8dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal"
+            android:paddingBottom="6dp">
 
-            <TextView
-                android:id="@+id/widget_title"
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+                <TextView
+                    android:id="@+id/widget_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:text="Today"
+                    android:textColor="#2F6BFF"
+                    android:textSize="13sp" />
+
+                <TextClock
+                    android:id="@+id/widget_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif-medium"
+                    android:format12Hour="h:mm"
+                    android:format24Hour="HH:mm"
+                    android:includeFontPadding="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="44sp"
+                    android:visibility="gone" />
+
+                <TextView
+                    android:id="@+id/widget_date"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="1dp"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textColor="#8E8E98"
+                    android:textSize="19sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <ImageView
+                android:id="@+id/widget_ring"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Today"
-                android:textColor="#FFFFFF"
-                android:textSize="32sp"
-                android:textStyle="bold" />
-
-            <TextClock
-                android:id="@+id/widget_clock"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:format12Hour="h:mm"
-                android:format24Hour="HH:mm"
-                android:textColor="#FFFFFF"
-                android:textSize="44sp"
-                android:textStyle="bold"
+                android:layout_marginStart="10dp"
                 android:visibility="gone" />
-
-            <TextView
-                android:id="@+id/widget_date"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textColor="#8E8E98"
-                android:textSize="14sp" />
         </LinearLayout>
 
         <ListView

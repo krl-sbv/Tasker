@@ -308,3 +308,47 @@ Names are in the language of the country	Los nombres están en el idioma del pa�
 Description	Descripción	Beschreibung	Description	Descrizione	Descrição	Opis	Описание	Опис	Açıklama
 Done	Listo	Fertig	Terminé	Fatto	Concluído	Gotowe	Готово	Готово	Tamam
 Write anything…	Escribe lo que quieras…	Schreib, was du willst…	Écrivez ce que vous voulez…	Scrivi quello che vuoi…	Escreva o que quiser…	Napisz cokolwiek…	Пишите что угодно…	Пишіть що завгодно…	İstediğini yaz…
+1 day before	1 día antes	1 Tag vorher	1 jour avant	1 giorno prima	1 dia antes	1 dzień wcześniej	За 1 день	За 1 день	1 gün önce
+1 day before at 09:00	1 día antes a las 09:00	1 Tag vorher um 09:00	1 jour avant à 09:00	1 giorno prima alle 09:00	1 dia antes às 09:00	1 dzień wcześniej o 09:00	За 1 день в 09:00	За 1 день о 09:00	1 gün önce 09:00'da
+1 hour before	1 hora antes	1 Stunde vorher	1 heure avant	1 ora prima	1 hora antes	1 godzinę wcześniej	За 1 час	За 1 годину	1 saat önce
+1 week before at 09:00	1 semana antes a las 09:00	1 Woche vorher um 09:00	1 semaine avant à 09:00	1 settimana prima alle 09:00	1 semana antes às 09:00	1 tydzień wcześniej o 09:00	За 1 неделю в 09:00	За 1 тиждень о 09:00	1 hafta önce 09:00'da
+5 minutes before	5 minutos antes	5 Minuten vorher	5 minutes avant	5 minuti prima	5 minutos antes	5 minut wcześniej	За 5 минут	За 5 хвилин	5 dakika önce
+10 minutes before	10 minutos antes	10 Minuten vorher	10 minutes avant	10 minuti prima	10 minutos antes	10 minut wcześniej	За 10 минут	За 10 хвилин	10 dakika önce
+15 minutes before	15 minutos antes	15 Minuten vorher	15 minutes avant	15 minuti prima	15 minutos antes	15 minut wcześniej	За 15 минут	За 15 хвилин	15 dakika önce
+30 minutes before	30 minutos antes	30 Minuten vorher	30 minutes avant	30 minuti prima	30 minutos antes	30 minut wcześniej	За 30 минут	За 30 хвилин	30 dakika önce
+3 days	3 días	3 Tage	3 jours	3 giorni	3 dias	3 dni	3 дня	3 дні	3 gün
+Add deadline	Añadir fecha límite	Frist hinzufügen	Ajouter une échéance	Aggiungi scadenza	Adicionar prazo	Dodaj termin	Добавить срок	Додати термін	Son tarih ekle
+Add description	Añadir descripción	Beschreibung hinzufügen	Ajouter une description	Aggiungi descrizione	Adicionar descrição	Dodaj opis	Добавить описание	Додати опис	Açıklama ekle
+Add location	Añadir ubicación	Ort hinzufügen	Ajouter un lieu	Aggiungi luogo	Adicionar local	Dodaj miejsce	Добавить место	Додати місце	Konum ekle
+Add notification	Añadir notificación	Benachrichtigung hinzufügen	Ajouter une notification	Aggiungi notifica	Adicionar notificação	Dodaj powiadomienie	Добавить уведомление	Додати сповіщення	Bildirim ekle
+Add title	Añadir título	Titel hinzufügen	Ajouter un titre	Aggiungi titolo	Adicionar título	Dodaj tytuł	Добавить название	Додати назву	Başlık ekle
+All day	Todo el día	Ganztägig	Toute la journée	Tutto il giorno	Dia inteiro	Cały dzień	Весь день	Увесь день	Tüm gün
+At start	Al comenzar	Zu Beginn	Au début	All'inizio	No início	Na początku	В начале	На початку	Başlangıçta
+Birthday	Cumpleaños	Geburtstag	Anniversaire	Compleanno	Aniversário	Urodziny	День рождения	День народження	Doğum günü
+Deadline	Fecha límite	Frist	Échéance	Scadenza	Prazo	Termin	Срок	Термін	Son tarih
+Default color	Color predeterminado	Standardfarbe	Couleur par défaut	Colore predefinito	Cor padrão	Domyślny kolor	Цвет по умолчанию	Колір за замовчуванням	Varsayılan renk
+Delete all occurrences?	¿Eliminar todas las repeticiones?	Alle Wiederholungen löschen?	Supprimer toutes les occurrences ?	Eliminare tutte le ripetizioni?	Excluir todas as repetições?	Usunąć wszystkie powtórzenia?	Удалить все повторения?	Видалити всі повторення?	Tüm tekrarlar silinsin mi?
+Deleted	Eliminado	Gelöscht	Supprimé	Eliminato	Excluído	Usunięto	Удалено	Видалено	Silindi
+Does not repeat	No se repite	Keine Wiederholung	Ne se répète pas	Non si ripete	Não se repete	Nie powtarza się	Не повторяется	Не повторюється	Tekrarlanmaz
+Due soon	Vence pronto	Bald fällig	Bientôt dû	In scadenza	Vence em breve	Wkrótce termin	Скоро срок	Скоро термін	Yakında bitiyor
+Event	Evento	Termin	Événement	Evento	Evento	Wydarzenie	Событие	Подія	Etkinlik
+Every month	Cada mes	Jeden Monat	Chaque mois	Ogni mese	Todo mês	Co miesiąc	Каждый месяц	Щомісяця	Her ay
+Every week	Cada semana	Jede Woche	Chaque semaine	Ogni settimana	Toda semana	Co tydzień	Каждую неделю	Щотижня	Her hafta
+Every year	Cada año	Jedes Jahr	Chaque année	Ogni anno	Todo ano	Co roku	Каждый год	Щороку	Her yıl
+Finished	Terminado	Erledigt	Terminé	Completato	Concluído	Ukończono	Выполнено	Виконано	Tamamlandı
+From	Desde	Ab	Dès	Dalle	Desde	Od	С	З	Başlangıç
+Until	Hasta	Bis	Jusqu'à	Fino alle	Até	Do	До	До	Bitiş
+More options	Más opciones	Weitere Optionen	Plus d'options	Altre opzioni	Mais opções	Więcej opcji	Ещё	Більше	Diğer seçenekler
+No results	Sin resultados	Keine Ergebnisse	Aucun résultat	Nessun risultato	Nenhum resultado	Brak wyników	Ничего не найдено	Нічого не знайдено	Sonuç yok
+Nothing planned	Nada planeado	Nichts geplant	Rien de prévu	Niente in programma	Nada planejado	Nic nie zaplanowano	Ничего не запланировано	Нічого не заплановано	Plan yok
+On the day at 09:00	El mismo día a las 09:00	Am selben Tag um 09:00	Le jour même à 09:00	Il giorno stesso alle 09:00	No dia às 09:00	W tym dniu o 09:00	В тот же день в 09:00	У той же день о 09:00	Aynı gün 09:00'da
+Saved	Guardado	Gespeichert	Enregistré	Salvato	Salvo	Zapisano	Сохранено	Збережено	Kaydedildi
+Schedule	Agenda	Terminübersicht	Planning	Agenda	Agenda	Harmonogram	Расписание	Розклад	Program
+Search	Buscar	Suchen	Rechercher	Cerca	Pesquisar	Szukaj	Поиск	Пошук	Ara
+Task	Tarea	Aufgabe	Tâche	Attività	Tarefa	Zadanie	Задача	Завдання	Görev
+days before	días antes	Tage vorher	jours avant	giorni prima	dias antes	dni wcześniej	дн. до	дн. до	gün önce
+hours before	horas antes	Stunden vorher	heures avant	ore prima	horas antes	godz. wcześniej	ч до	год до	saat önce
+minutes before	minutos antes	Minuten vorher	minutes avant	minuti prima	minutos antes	min wcześniej	мин до	хв до	dakika önce
+month	mes	Monat	mois	mese	mês	miesiąc	месяц	місяць	ay
+year	año	Jahr	an	anno	ano	rok	год	рік	yıl
+Accent color	Color de acento	Akzentfarbe	Couleur d’accent	Colore di risalto	Cor de destaque	Kolor akcentu	Акцентный цвет	Акцентний колір	Vurgu rengi

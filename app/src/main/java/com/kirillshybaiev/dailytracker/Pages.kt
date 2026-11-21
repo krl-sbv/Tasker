@@ -72,6 +72,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.blur
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.luminance
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -155,9 +158,11 @@ data class DayStat(val date: LocalDate, val planned: Int, val done: Int) {
 
 data class Note(val text: String, val tone: Int)
 
+data class Advice(val title: String, val detail: String, val gain: Int, val score: Float)
+
 data class Analysis(
     val rate: Float?, val dayRates: List<Float?>, val bestStreak: Int, val notes: List<Note>,
-    val tip: String = ""
+    val tip: String = "", val advice: List<Advice> = emptyList()
 )
 
 fun pct(x: Float?) = if (x == null) "–" else "${(x * 100).roundToInt()}%"
@@ -194,7 +199,7 @@ fun analyze(state: AppState, all: List<DayStat>, range: Int, today: LocalDate): 
 
     val notes = mutableListOf<Note>()
     var fix: String? = null
-    if (state.tasks.isEmpty() && state.history.isEmpty()) {
+    if (state.tasks.none { it.isTask } && state.history.isEmpty()) {
         notes += Note("Add a few tasks and finish them. Your insights will show up here.", 0)
         return Analysis(rate, cur.map { it.rate }, best, notes, notes.first().text)
     }
@@ -216,7 +221,7 @@ fun analyze(state: AppState, all: List<DayStat>, range: Int, today: LocalDate): 
     }
 
     data class TR(val task: Task, val done: Int, val total: Int) { val r get() = done.toFloat() / total }
-    val perTask = state.tasks.mapNotNull { t ->
+    val perTask = state.tasks.filter { it.isTask }.mapNotNull { t ->
         val sched = past.filter { t.occursOn(it.date) && !state.isSkipped(t, it.date) }
         if (sched.size < 4) null else TR(t, sched.count { state.isDone(t, it.date) }, sched.size)
     }
@@ -272,7 +277,157 @@ fun analyze(state: AppState, all: List<DayStat>, range: Int, today: LocalDate): 
         notes.add(0, Note("Very consistent at ${pct(rate)}. If it feels easy, add one small new habit.", 1))
     }
     val tip = fix ?: if (rate >= 0.85f) "Very consistent. If it feels easy, add one small new habit." else "Keep going: finish one task early each day."
-    return Analysis(rate, cur.map { it.rate }, best, notes.take(4), tip)
+    val advice = buildAdvice(state, cur, past, rate, perTask.map { Triple(it.task, it.done, it.total) }, today)
+    return Analysis(rate, cur.map { it.rate }, best, notes.take(4), advice.firstOrNull()?.title ?: tip, advice)
+}
+
+private fun plural(n: Int, one: String, many: String) = if (n == 1) "1 $one" else "$n $many"
+
+fun buildAdvice(
+    state: AppState, cur: List<DayStat>, past: List<DayStat>, rate: Float,
+    perTask: List<Triple<Task, Int, Int>>, today: LocalDate
+): List<Advice> {
+    val out = mutableListOf<Advice>()
+    val plannedAll = cur.sumOf { it.planned }
+    val doneAll = cur.sumOf { it.done }
+    fun points(x: Float) = (x * 100).roundToInt().coerceAtLeast(0)
+
+    val todayTasks = state.tasksOn(today)
+    val left = todayTasks.count { !state.isDone(it, today) }
+    val streak = state.streak(today)
+    if (left > 0 && streak >= 2) {
+        out += Advice(
+            "Keep your $streak-day streak",
+            "${plural(left, "task", "tasks")} left today. Finish ${if (left == 1) "it" else "them"} to reach ${streak + 1} days.",
+            0, 0.35f
+        )
+    }
+
+    val planDays = cur.filter { it.planned > 0 }
+    if (planDays.size >= 5) {
+        val avgPlanned = planDays.sumOf { it.planned }.toFloat() / planDays.size
+        val avgDone = planDays.sumOf { it.done }.toFloat() / planDays.size
+        if (avgPlanned >= 3f && rate < 0.75f) {
+            val cut = ceil(avgPlanned - avgDone).toInt().coerceIn(1, (avgPlanned - 1).toInt().coerceAtLeast(1))
+            val newRate = (avgDone / (avgPlanned - cut).coerceAtLeast(1f)).coerceAtMost(1f)
+            val gain = points(newRate - rate)
+            out += Advice(
+                "Plan ${plural(cut, "task", "tasks")} fewer a day",
+                "You plan ${fmt1(avgPlanned)} and finish ${fmt1(avgDone)}. Planning ${fmt1(avgPlanned - cut)} would put you near ${pct(newRate)}.",
+                gain, gain / 100f + 0.1f
+            )
+        }
+    }
+
+    val withTime = perTask.filter { it.first.time != null }
+    val timeRate = if (withTime.isNotEmpty()) withTime.sumOf { it.second }.toFloat() / withTime.sumOf { it.third } else null
+    perTask.filter { it.second.toFloat() / it.third < 0.6f }.sortedBy { it.second.toFloat() / it.third }.take(2).forEach { (t, done, total) ->
+        val r = done.toFloat() / total
+        val missed = total - done
+        val without = if (plannedAll - total > 0) (doneAll - done).toFloat() / (plannedAll - total) else rate
+        val daily = t.repeating && ((t.unit == 0 && t.interval == 1 && t.weekdays == 0) || t.weekdays == 127)
+        val name = "“${t.title}”"
+        val a = when {
+            done == 0 && total >= 5 -> Advice(
+                "Pause or remove $name", "Not done once in its last $total days. Dropping it alone lifts you to ${pct(without)}.",
+                points(without - rate), (without - rate) + 0.2f
+            )
+            t.time == null -> Advice(
+                "Give $name a reminder time",
+                "Done $done of $total times (${pct(r)})." + if (timeRate != null && timeRate > r) " Your tasks with a time get done ${pct(timeRate)} of the time." else "",
+                points(missed.toFloat() / plannedAll * 0.5f), missed.toFloat() / plannedAll + 0.05f
+            )
+            daily -> Advice(
+                "Make $name every other day", "Done $done of $total days (${pct(r)}). Fewer days you keep beat many you miss.",
+                points(missed.toFloat() / plannedAll * 0.5f), missed.toFloat() / plannedAll
+            )
+            else -> Advice(
+                "Move $name to an easier time", "Done $done of $total times (${pct(r)}). Try a slot where your other tasks get done.",
+                points(missed.toFloat() / plannedAll * 0.4f), missed.toFloat() / plannedAll * 0.8f
+            )
+        }
+        out += a
+    }
+
+    val byDay = DayOfWeek.values().map { dow -> dow to past.filter { it.date.dayOfWeek == dow && it.planned > 0 } }
+        .filter { it.second.size >= 2 }.map { Triple(it.first, rateOf(it.second)!!, it.second.sumOf { d -> d.planned }) }
+    if (byDay.size >= 3) {
+        val hi = byDay.maxByOrNull { it.second }!!
+        val lo = byDay.minByOrNull { it.second }!!
+        if (hi.second - lo.second >= 0.2f && plannedAll > 0) {
+            val n = { d: DayOfWeek -> d.getDisplayName(JTextStyle.FULL, Locale.getDefault()) }
+            val gain = (hi.second - lo.second) * lo.third / plannedAll * 0.6f
+            out += Advice(
+                "Plan less on ${n(lo.first)}", "${n(lo.first)}: ${pct(lo.second)} done. ${n(hi.first)}: ${pct(hi.second)}. Move one task to a stronger day.",
+                points(gain), gain + 0.03f
+            )
+        }
+    }
+
+    fun part(h: Int) = when { h < 12 -> 0; h < 17 -> 1; else -> 2 }
+    val partNames = listOf("Morning", "Afternoon", "Evening")
+    val parts = withTime.groupBy { part(it.first.time!!.hour) }
+        .mapValues { (_, l) -> l.sumOf { it.second }.toFloat() / l.sumOf { it.third } to l.sumOf { it.third } }
+        .filter { it.value.second >= 6 }
+    if (parts.size >= 2) {
+        val best = parts.maxByOrNull { it.value.first }!!
+        val worst = parts.minByOrNull { it.value.first }!!
+        if (best.value.first - worst.value.first >= 0.2f && plannedAll > 0) {
+            val gain = (best.value.first - worst.value.first) * worst.value.second / plannedAll * 0.5f
+            out += Advice(
+                "Shift ${partNames[worst.key].lowercase()} tasks to the ${partNames[best.key].lowercase()}",
+                "${partNames[worst.key]} tasks: ${pct(worst.value.first)} done. ${partNames[best.key]}: ${pct(best.value.first)}.",
+                points(gain), gain + 0.02f
+            )
+        }
+    }
+
+    val last7 = rateOf(cur.takeLast(7))
+    val prev7 = rateOf(cur.dropLast(7).takeLast(7))
+    if (last7 != null && prev7 != null && prev7 - last7 >= 0.15f) {
+        out += Advice(
+            "Get back on track this week", "This week ${pct(last7)}, the week before ${pct(prev7)}. Start each day with your easiest task.",
+            0, (prev7 - last7) * 0.5f
+        )
+    }
+
+    val overdue = state.overdue(today).size
+    if (overdue >= 3) {
+        out += Advice("Clear $overdue overdue tasks", "Move them to a new day or dismiss them so today stays clear.", 0, 0.04f)
+    }
+
+    if (out.isEmpty()) {
+        out += if (rate >= 0.85f) Advice("Ready for one more habit", "You finish ${pct(rate)} of what you plan. Add one small daily task.", 0, 0f)
+        else Advice("Finish one task early each day", "Starting the day with a quick win makes the rest easier.", 0, 0f)
+    }
+    return out.sortedByDescending { it.score }.take(3)
+}
+
+@Composable
+fun AdviceList(advice: List<Advice>) {
+    val cs = MaterialTheme.colorScheme
+    advice.forEachIndexed { i, ad ->
+        Spacer(Modifier.height(if (i == 0) 12.dp else 16.dp))
+        Row(verticalAlignment = Alignment.Top) {
+            Box(
+                Modifier.size(26.dp).clip(CircleShape).background(cs.primary.copy(alpha = if (isDarkUi()) 0.2f else 0.1f)),
+                contentAlignment = Alignment.Center
+            ) { Text("${i + 1}", fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = cs.primary) }
+            Spacer(Modifier.width(12.dp))
+            Column(Modifier.weight(1f)) {
+                Text(ad.title, fontSize = 16.sp, fontWeight = FontWeight.Medium, lineHeight = 21.sp)
+                Spacer(Modifier.height(2.dp))
+                Text(ad.detail, fontSize = 13.sp, lineHeight = 18.sp, color = cs.onSurfaceVariant)
+            }
+            if (ad.gain > 0) {
+                Spacer(Modifier.width(8.dp))
+                Text(
+                    "+${ad.gain}%", fontSize = 12.sp, fontWeight = FontWeight.SemiBold, color = GREEN,
+                    modifier = Modifier.clip(RShape(10.dp)).background(GREEN.copy(alpha = 0.13f)).padding(horizontal = 8.dp, vertical = 3.dp)
+                )
+            }
+        }
+    }
 }
 
 @Composable
@@ -302,7 +457,6 @@ fun InsightsScreen(state: AppState, onClose: () -> Unit, onSwipeHintSeen: () -> 
             }
         )
     }
-    val block = remember { MutableInteractionSource() }
     val pager = rememberPagerState(initialPage = 0) { 2 }
     val scope = rememberCoroutineScope()
 
@@ -321,60 +475,47 @@ fun InsightsScreen(state: AppState, onClose: () -> Unit, onSwipeHintSeen: () -> 
         if (pager.isScrollInProgress && needHint) { showHint = false; onSwipeHintSeen() }
     }
 
-    Surface(
-        modifier = modifier.fillMaxSize().clickable(interactionSource = block, indication = null, onClick = {}),
-        color = cs.background, contentColor = cs.onBackground
-    ) {
-        Box(Modifier.fillMaxSize()) {
-            Column(Modifier.fillMaxSize().statusBarsPadding()) {
-                Row(Modifier.then(swipeRange).padding(start = 24.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Text(tx("Insights"), fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                    }
-                    SIconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = "Close") }
-                }
-                HorizontalPager(
-                    state = pager, modifier = Modifier.weight(1f).fillMaxWidth(), beyondViewportPageCount = 1
-                ) { page ->
-                    Column(
-                        Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                            .padding(horizontal = 24.dp).padding(top = 14.dp)
-                            .padding(bottom = bottomSpace(100.dp))
-                    ) {
-                        if (page == 0) {
-                            MinimalOverview(a, range, ranges, { range = it }, streak, week, swipeRange) {
-                                if (needHint) { showHint = false; onSwipeHintSeen() }
-                                scope.launch { pager.animateScrollToPage(1) }
-                            }
+    LargeTitleScaffold(tx("Insights"), modifier, onBack = onClose) {
+        Box(Modifier.weight(1f).fillMaxWidth()) {
+            HorizontalPager(state = pager, modifier = Modifier.fillMaxSize().rubberBand(vertical = false), beyondViewportPageCount = 1) { page ->
+                Column(
+                    Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                        .padding(horizontal = 16.dp).padding(top = 6.dp)
+                        .padding(bottom = bottomSpace(100.dp))
+                ) {
+                    if (page == 0) {
+                        MinimalOverview(a, range, ranges, { range = it }, streak, week, swipeRange) {
+                            if (needHint) { showHint = false; onSwipeHintSeen() }
+                            scope.launch { pager.animateScrollToPage(1) }
+                        }
+                    } else {
+                        val tasks = state.tasks.filter { it.repeating && it.isTask }
+                        if (tasks.isEmpty()) {
+                            Text(
+                                "Add a repeating task first. Its stats will show up here.",
+                                color = cs.onSurfaceVariant, modifier = Modifier.padding(start = 8.dp, top = 24.dp)
+                            )
                         } else {
-                            val tasks = state.tasks.filter { it.repeating }
-                            if (tasks.isEmpty()) {
-                                Text(
-                                    "Add a repeating task first. Its stats will show up here.",
-                                    color = cs.onSurfaceVariant, modifier = Modifier.padding(top = 24.dp)
-                                )
-                            } else {
-                                val task = tasks.find { it.id == pickedId } ?: tasks.first()
-                                MenuButton(
-                                    task.title, fill = true,
-                                    leading = { task.color?.let { Box(Modifier.size(12.dp).clip(CircleShape).background(Color(it))) } }
-                                ) { close ->
-                                    tasks.forEach { t2 ->
-                                        DropdownMenuItem(
-                                            text = {
-                                                Column {
-                                                    Text(t2.title)
-                                                    Text(t2.repeatLabel(), fontSize = 12.sp, color = cs.onSurfaceVariant)
-                                                }
-                                            },
-                                            leadingIcon = { t2.color?.let { Box(Modifier.size(10.dp).clip(CircleShape).background(Color(it))) } },
-                                            onClick = { pickedId = t2.id; close() }
-                                        )
-                                    }
+                            val task = tasks.find { it.id == pickedId } ?: tasks.first()
+                            MenuButton(
+                                task.title, fill = true,
+                                leading = { Box(Modifier.size(12.dp).clip(CircleShape).background(task.color?.let { Color(it) } ?: cs.primary)) }
+                            ) { close ->
+                                tasks.forEach { t2 ->
+                                    DropdownMenuItem(
+                                        text = {
+                                            Column {
+                                                Text(t2.title, color = if (t2.id == task.id) cs.primary else cs.onSurface)
+                                                Text(t2.repeatLabel(), fontSize = 12.sp, color = cs.onSurfaceVariant)
+                                            }
+                                        },
+                                        leadingIcon = { Box(Modifier.size(10.dp).clip(CircleShape).background(t2.color?.let { Color(it) } ?: cs.primary)) },
+                                        onClick = { pickedId = t2.id; close() }
+                                    )
                                 }
-                                Spacer(Modifier.height(18.dp))
-                                TaskStatsContent(state, task, today)
                             }
+                            Spacer(Modifier.height(12.dp))
+                            TaskStatsContent(state, task, today)
                         }
                     }
                 }
@@ -390,26 +531,6 @@ fun InsightsScreen(state: AppState, onClose: () -> Unit, onSwipeHintSeen: () -> 
                 modifier = Modifier.align(Alignment.BottomCenter).navigationBarsPadding().padding(bottom = 14.dp)
             )
         }
-    }
-}
-
-@Composable
-fun SectionTitle(title: String, sub: String) {
-    val cs = MaterialTheme.colorScheme
-    HorizontalDivider(Modifier.padding(top = 26.dp, bottom = 16.dp), color = cs.outline.copy(alpha = 0.3f))
-    Row(Modifier.padding(bottom = 12.dp), verticalAlignment = Alignment.Bottom) {
-        Text(title, fontSize = 18.sp, fontWeight = FontWeight.Bold, modifier = Modifier.weight(1f))
-        Text(sub, fontSize = 12.sp, color = cs.onSurfaceVariant)
-    }
-}
-
-@Composable
-fun BigStat(label: String, value: String, sub: String, modifier: Modifier) {
-    val cs = MaterialTheme.colorScheme
-    Column(modifier) {
-        Text(label, fontSize = 12.sp, color = cs.onSurfaceVariant)
-        SwapText(value, fontSize = 32.sp, fontWeight = FontWeight.Bold)
-        Text(sub, fontSize = 12.sp, color = cs.onSurfaceVariant)
     }
 }
 
@@ -433,6 +554,7 @@ fun DayBars(rates: List<Float?>, modifier: Modifier, minimal: Boolean = false) {
             val y = size.height * (1f - f)
             drawLine(grid, Offset(0f, y), Offset(size.width, y), 1.dp.toPx())
         }
+        val lastIndex = rates.indexOfLast { it != null }
         val win = (rates.size / 8).coerceIn(2, 10)
         val pts = mutableListOf<Offset>()
         rates.forEachIndexed { i, _ ->
@@ -446,7 +568,7 @@ fun DayBars(rates: List<Float?>, modifier: Modifier, minimal: Boolean = false) {
             } else {
                 val h = max(r * size.height * grow.value, 3.dp.toPx())
                 val c = if (minimal) {
-                    when { r >= 0.999f -> cs.onBackground; r > 0f -> cs.onBackground.copy(alpha = 0.35f); else -> cs.outline.copy(alpha = 0.6f) }
+                    if (i == lastIndex) cs.primary else cs.onSurface.copy(alpha = 0.1f + 0.38f * r)
                 } else when { r >= 0.999f -> GREEN; r > 0f -> partial; else -> RED.copy(alpha = 0.8f) }
                 drawRoundRect(c, Offset(x, size.height - h), Size(bw, h), CornerRadius(min(bw / 2f, 4.dp.toPx())))
             }
@@ -461,9 +583,21 @@ fun DayBars(rates: List<Float?>, modifier: Modifier, minimal: Boolean = false) {
 @Composable
 fun Eyebrow(text: String, modifier: Modifier = Modifier) {
     Text(
-        text.uppercase(), fontSize = 11.sp, fontWeight = FontWeight.Medium, letterSpacing = 1.6.sp,
+        text, fontSize = 14.sp, fontWeight = FontWeight.Medium,
         color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = modifier
     )
+}
+
+@Composable
+private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
+    Card(modifier) {
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 18.dp)) {
+            Eyebrow(label)
+            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(4.dp))
+            SwapText(value, fontSize = 40.sp, fontWeight = FontWeight.SemiBold)
+        }
+    }
 }
 
 @Composable
@@ -473,57 +607,45 @@ fun MinimalOverview(
 ) {
     val cs = MaterialTheme.colorScheme
     Column(Modifier.fillMaxWidth().then(swipe)) {
-        val shell = RShape(16.dp)
-        Row(Modifier.clip(shell).border(1.dp, cs.outline.copy(alpha = 0.5f), shell).padding(4.dp)) {
-            ranges.forEach { r ->
-                val on = r == range
-                val bg by animateColorAsState(if (on) cs.onBackground else cs.background.copy(alpha = 0f), label = "rangeBg")
-                val fg by animateColorAsState(if (on) cs.background else cs.onSurfaceVariant, label = "rangeFg")
-                val seg = RShape(12.dp)
-                Box(
-                    Modifier.springClick(seg, 0.94f) { onRange(r) }.background(bg).padding(horizontal = 18.dp, vertical = 8.dp),
-                    contentAlignment = Alignment.Center
-                ) { Text("$r ${tx("days")}", fontSize = 13.sp, fontWeight = FontWeight.Medium, color = fg) }
-            }
-        }
+        Segmented(ranges.map { "$it ${tx("days")}" }, ranges.indexOf(range).coerceAtLeast(0), { onRange(ranges[it]) })
 
-        Spacer(Modifier.height(36.dp))
-        Eyebrow(tx("Completion"))
-        Spacer(Modifier.height(4.dp))
-        SwapText(pct(a.rate), fontSize = 76.sp, fontWeight = FontWeight.Light)
-        Text("${tx("last")} $range ${tx("days")}", fontSize = 13.sp, color = cs.onSurfaceVariant)
-
-        HorizontalDivider(Modifier.padding(top = 30.dp, bottom = 22.dp), color = cs.outline.copy(alpha = 0.25f))
-        Row(Modifier.fillMaxWidth()) {
-            listOf(tx("Streak") to "$streak", tx("This week") to pct(week)).forEach { (label, value) ->
-                Column(Modifier.weight(1f)) {
-                    Text(label, fontSize = 12.sp, color = cs.onSurfaceVariant)
-                    SwapText(value, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
+        Spacer(Modifier.height(12.dp))
+        Card {
+            Column(Modifier.padding(20.dp)) {
+                Eyebrow(tx("Completion"))
+                Spacer(Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.Bottom) {
+                    SwapText(pct(a.rate), fontSize = 40.sp, fontWeight = FontWeight.SemiBold)
+                    Spacer(Modifier.width(8.dp))
+                    Text(
+                        "${tx("last")} $range ${tx("days")}", fontSize = 13.sp, color = cs.onSurfaceVariant,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
                 }
+                Spacer(Modifier.height(18.dp))
+                Eyebrow(tx("Daily completion"))
+                Spacer(Modifier.height(10.dp))
+                DayBars(a.dayRates, Modifier.fillMaxWidth().height(88.dp), minimal = true)
             }
         }
 
-        Spacer(Modifier.height(34.dp))
-        Eyebrow(tx("Daily completion"))
-        Spacer(Modifier.height(14.dp))
-        DayBars(a.dayRates, Modifier.fillMaxWidth().height(96.dp), minimal = true)
-
-        Spacer(Modifier.height(34.dp))
-        Eyebrow(tx("To improve"))
-        Spacer(Modifier.height(10.dp))
-        Text(a.tip, fontSize = 17.sp, lineHeight = 24.sp)
-
-        Spacer(Modifier.height(26.dp))
-        val chip = RShape(12.dp)
-        Row(
-            Modifier.springClick(chip, 0.94f, onClick = onPerTask).border(1.dp, cs.outline.copy(alpha = 0.5f), chip)
-                .padding(horizontal = 14.dp, vertical = 9.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Text(tx("Per task"), fontSize = 13.sp, fontWeight = FontWeight.Medium)
-            Spacer(Modifier.width(8.dp))
-            Text("›", fontSize = 16.sp, color = cs.onSurfaceVariant)
+        Spacer(Modifier.height(12.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatCard(tx("Streak"), "$streak", Modifier.weight(1f))
+            StatCard(tx("This week"), pct(week), Modifier.weight(1f))
         }
+
+        Spacer(Modifier.height(12.dp))
+        Card {
+            Column(Modifier.padding(20.dp)) {
+                Eyebrow(tx("To improve"))
+                if (a.advice.isEmpty()) {
+                    Spacer(Modifier.height(6.dp))
+                    Text(a.tip, fontSize = 15.sp, lineHeight = 22.sp)
+                } else AdviceList(a.advice)
+            }
+        }
+
     }
 }
 
@@ -531,33 +653,19 @@ fun MinimalOverview(
 
 @Composable
 fun TaskDetailScreen(state: AppState, taskId: String, onClose: () -> Unit, modifier: Modifier = Modifier) {
-    val cs = MaterialTheme.colorScheme
     val today = LocalDate.now()
     val task = state.tasks.find { it.id == taskId }
-    val block = remember { MutableInteractionSource() }
-
-    Surface(
-        modifier = modifier.fillMaxSize().clickable(interactionSource = block, indication = null, onClick = {}),
-        color = cs.background, contentColor = cs.onBackground
+    LargeTitleScaffold(
+        task?.title ?: "", modifier,
+        subtitle = task?.let { "${it.repeatLabel()} · since ${fmtDate(it.date)}" } ?: "",
+        onBack = onClose
     ) {
         if (task != null) {
-            Column(Modifier.fillMaxSize().statusBarsPadding()) {
-                Row(Modifier.padding(start = 24.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                    Column(Modifier.weight(1f)) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            task.color?.let { Box(Modifier.padding(end = 10.dp).size(12.dp).clip(CircleShape).background(Color(it))) }
-                            Text(task.title, fontSize = 26.sp, fontWeight = FontWeight.Bold, maxLines = 2, overflow = TextOverflow.Ellipsis)
-                        }
-                        Text("${task.repeatLabel()} · since ${fmtDate(task.date)}", fontSize = 13.sp, color = cs.onSurfaceVariant)
-                    }
-                    SIconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = "Close") }
-                }
-                Column(
-                    Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp).padding(top = 18.dp)
-                        .navigationBarsPadding().padding(bottom = 28.dp)
-                ) { TaskStatsContent(state, task, today) }
-            }
+            Column(
+                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
+                    .padding(horizontal = 16.dp).padding(top = 6.dp)
+                    .navigationBarsPadding().padding(bottom = 28.dp)
+            ) { TaskStatsContent(state, task, today) }
         }
     }
 }
@@ -567,33 +675,37 @@ fun TaskStatsContent(state: AppState, task: Task, today: LocalDate) {
     val cs = MaterialTheme.colorScheme
     val st = remember(state, task) { state.taskStats(task, today) }
     Column {
-        Eyebrow(tx("Completion"))
-        Spacer(Modifier.height(4.dp))
-        SwapText("${st.percent}%", fontSize = 76.sp, fontWeight = FontWeight.Light)
-        Text("${st.done} ${tx("out of")} ${st.total} ${tx("days")}", fontSize = 13.sp, color = cs.onSurfaceVariant)
-
-        HorizontalDivider(Modifier.padding(top = 28.dp, bottom = 22.dp), color = cs.outline.copy(alpha = 0.25f))
-        Row(Modifier.fillMaxWidth()) {
-            listOf(tx("Streak") to "${st.current}", tx("Finished") to "${st.done}").forEach { (label, value) ->
-                Column(Modifier.weight(1f)) {
-                    Text(label, fontSize = 12.sp, color = cs.onSurfaceVariant)
-                    SwapText(value, fontSize = 26.sp, fontWeight = FontWeight.SemiBold)
-                }
+        Card {
+            Column(Modifier.padding(20.dp)) {
+                Eyebrow(tx("Completion"))
+                SwapText("${st.percent}%", fontSize = 56.sp, fontWeight = FontWeight.SemiBold)
+                Text("${st.done} ${tx("out of")} ${st.total} ${tx("days")}", fontSize = 13.sp, color = cs.onSurfaceVariant)
             }
         }
-
-        Spacer(Modifier.height(34.dp))
-        Eyebrow(tx("Last 20 weeks"))
-        Spacer(Modifier.height(14.dp))
-        Heatmap(state, task, today, Modifier.fillMaxWidth().aspectRatio(20f / 7f))
-
-        Spacer(Modifier.height(34.dp))
-        Eyebrow(tx("Notes"))
-        Spacer(Modifier.height(10.dp))
-        Text(taskNote(state, task, today, st), fontSize = 17.sp, lineHeight = 24.sp)
-        if (task.description.isNotBlank()) {
-            Spacer(Modifier.height(14.dp))
-            Text(task.description, fontSize = 15.sp, lineHeight = 21.sp, color = cs.onSurfaceVariant)
+        Spacer(Modifier.height(12.dp))
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+            StatCard(tx("Streak"), "${st.current}", Modifier.weight(1f))
+            StatCard(tx("Finished"), "${st.done}", Modifier.weight(1f))
+        }
+        Spacer(Modifier.height(12.dp))
+        Card {
+            Column(Modifier.padding(20.dp)) {
+                Eyebrow(tx("Last 20 weeks"))
+                Spacer(Modifier.height(14.dp))
+                Heatmap(state, task, today, Modifier.fillMaxWidth().aspectRatio(20f / 7f))
+            }
+        }
+        Spacer(Modifier.height(12.dp))
+        Card {
+            Column(Modifier.padding(20.dp)) {
+                Eyebrow(tx("Notes"))
+                Spacer(Modifier.height(8.dp))
+                Text(taskNote(state, task, today, st), fontSize = 16.sp, lineHeight = 23.sp)
+                if (task.description.isNotBlank()) {
+                    Spacer(Modifier.height(12.dp))
+                    Text(task.description, fontSize = 15.sp, lineHeight = 21.sp, color = cs.onSurfaceVariant)
+                }
+            }
         }
     }
 }
@@ -643,10 +755,10 @@ private fun Heatmap(state: AppState, task: Task, today: LocalDate, modifier: Mod
             }
         }
     }
-    val faint = cs.outline.copy(alpha = 0.22f)
-    val skipped = cs.onSurfaceVariant.copy(alpha = 0.35f)
-    val missed = RED.copy(alpha = 0.45f)
-    val ring = cs.onBackground
+    val faint = cs.onSurface.copy(alpha = 0.06f)
+    val zero = cs.onSurfaceVariant.copy(alpha = 0.4f)
+    val full = GREEN
+    val ring = cs.primary
     Canvas(modifier) {
         val gap = 3.dp.toPx()
         val cell = (size.width - gap * (weeks - 1)) / weeks
@@ -655,7 +767,7 @@ private fun Heatmap(state: AppState, task: Task, today: LocalDate, modifier: Mod
                 val x = c * (cell + gap)
                 val y = r * (cell + gap)
                 val kind = cells[c * 7 + r]
-                val color = when (kind) { 2 -> ring; 3 -> missed; 1 -> skipped; else -> faint }
+                val color = when (kind) { 2 -> full; 3 -> zero; else -> faint }
                 drawRoundRect(color, Offset(x, y), Size(cell, cell), CornerRadius(cell * 0.28f))
                 if (kind == 4) drawRoundRect(ring, Offset(x, y), Size(cell, cell), CornerRadius(cell * 0.28f), style = Stroke(1.5.dp.toPx()))
             }
@@ -663,7 +775,7 @@ private fun Heatmap(state: AppState, task: Task, today: LocalDate, modifier: Mod
     }
 }
 
-// ═══════════════ ProfileScreen ═══════════════
+// ═══════════════ SettingsScreen ═══════════════
 
 @Composable
 fun SettingsPage(
@@ -679,93 +791,158 @@ fun SettingsPage(
     val themeNames = listOf(tx("System"), tx("Light"), tx("Dark"), tx("Black"))
     val blurNames = listOf(tx("Off"), tx("Light"), tx("Strong"))
     val langCode = Lang.resolve(state.language)
+    val version = remember {
+        runCatching { ctx.packageManager.getPackageInfo(ctx.packageName, 0).versionName }.getOrNull() ?: ""
+    }
 
-    Column(modifier.fillMaxWidth()) {
-        SheetPanel(Modifier.weight(1f)) {
-            Column(
-                Modifier.fillMaxSize().verticalScroll(rememberScrollState())
-                    .padding(horizontal = 14.dp).padding(top = 12.dp, bottom = bottomSpace(100.dp))
-            ) {
-                SectionLabel(tx("Language & holidays"))
-                SettingRow(tx("Language"), tx("Language of the app"), onClick = onLanguage) {
-                    Value(if (state.language.isEmpty()) tx("Device") + " · " + Lang.nativeName(langCode) else Lang.nativeName(langCode))
+    Column(
+        modifier.fillMaxWidth().verticalScroll(rememberScrollState())
+            .padding(horizontal = 16.dp).padding(bottom = bottomSpace(32.dp))
+    ) {
+        GroupLabel(tx("Appearance"), Modifier.padding(top = 0.dp))
+        CardGroup {
+            Column(Modifier.padding(16.dp)) {
+                Text(tx("Theme"), fontSize = 16.sp)
+                Spacer(Modifier.height(12.dp))
+                Segmented(themeNames, state.theme, { vm.setTheme(it) })
+            }
+            Column(Modifier.padding(16.dp)) {
+                Text(tx("Accent color"), fontSize = 16.sp)
+                SwapText(if (state.accent == 0) tx("Follows your phone") else " ", fontSize = 13.sp, color = cs.onSurfaceVariant)
+                Spacer(Modifier.height(10.dp))
+                AccentPicker(state.accent) { vm.setAccent(it) }
+            }
+            SettingRow(tx("Animations"), tx("Springy, fluid motion")) {
+                SSwitch(checked = state.springy, onCheckedChange = { vm.setSpringy(it) })
+            }
+            SettingRow(tx("Blur"), tx("Blurs the screen behind sheets and screens")) {
+                MenuButton(blurNames[state.blurMode]) { close ->
+                    blurNames.forEachIndexed { i, n -> MenuItem(n, i == state.blurMode) { vm.setBlur(i); close() } }
                 }
-                SettingRow(tx("Holidays"), tx("Country of the public holidays"), onClick = onHolidays) {
-                    Value(if (state.country == "AUTO") tx("Automatic") else Holidays.countryName(state.country))
-                }
-                SettingRow(tx("Show holidays"), tx("Mark them in the calendar")) {
-                    SSwitch(checked = state.showHolidays, onCheckedChange = { vm.setShowHolidays(it) })
-                }
-
-                SectionLabel(tx("Tasks"))
-                SettingRow(
-                    tx("Repeating tasks"), "${state.tasks.count { it.repeating }} · ${tx("Review and fix schedules")}",
-                    onClick = onRepeating
-                ) { Value("") }
-
-                SectionLabel(tx("Appearance"))
-                SettingRow(tx("Animations"), tx("Springy, fluid motion")) {
-                    SSwitch(checked = state.springy, onCheckedChange = { vm.setSpringy(it) })
-                }
-                SettingRow(tx("Theme"), tx("Follows your phone by default")) {
-                    MenuButton(themeNames[state.theme]) { close ->
-                        themeNames.forEachIndexed { i, n -> DropdownMenuItem(text = { Text(n) }, onClick = { vm.setTheme(i); close() }) }
-                    }
-                }
-                SettingRow(tx("Blur"), tx("Blurs the screen behind sheets and screens")) {
-                    MenuButton(blurNames[state.blurMode]) { close ->
-                        blurNames.forEachIndexed { i, n -> DropdownMenuItem(text = { Text(n) }, onClick = { vm.setBlur(i); close() }) }
-                    }
-                }
-
-                SectionLabel(tx("Notifications"))
-                SettingRow(
-                    tx("Exact reminders"), if (exact) tx("On · alarms arrive on time") else tx("Off · tap to allow"),
-                    onClick = {
-                        if (Build.VERSION.SDK_INT >= 31) {
-                            ctx.startActivity(
-                                Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${ctx.packageName}"))
-                            )
-                        }
-                    }
-                ) { Value("") }
-                SettingRow(tx("Evening nudge"), tx("A reminder at 19:00–20:00 if tasks are left")) {
-                    SSwitch(checked = state.nudgeOn, onCheckedChange = { vm.setNudge(it) })
-                }
-                SettingRow(tx("Weekly review"), tx("A short summary every week")) {
-                    SSwitch(checked = state.reviewOn, onCheckedChange = { vm.setReview(it) })
-                }
-
-                SectionLabel(tx("Calendar"))
-                SettingRow(tx("Week starts on"), tx("First day in calendar and charts")) {
-                    MenuButton(DayOfWeek.of(state.weekStartDay).getDisplayName(JTextStyle.FULL, Locale.getDefault())) { close ->
-                        DayOfWeek.values().forEach { d ->
-                            DropdownMenuItem(
-                                text = { Text(d.getDisplayName(JTextStyle.FULL, Locale.getDefault())) },
-                                onClick = { vm.setWeekStart(d.value); close() }
-                            )
-                        }
-                    }
-                }
-
-                SectionLabel(tx("Data"))
-                SettingRow(tx("Import"), tx("Add tasks from a backup file"), onClick = onImport) { Value("") }
-                SettingRow(tx("Export"), tx("Save tasks, history and settings"), onClick = onExport) { Value("") }
-                SettingRow(tx("Reset all data"), tx("Delete all tasks and history"), onClick = { confirmReset = true }) { Value("") }
             }
         }
+
+        GroupLabel(tx("Language & holidays"))
+        CardGroup {
+            SettingRow(tx("Language"), tx("Language of the app"), onClick = onLanguage) {
+                Value(if (state.language.isEmpty()) tx("Device") + " · " + Lang.nativeName(langCode) else Lang.nativeName(langCode))
+            }
+            SettingRow(tx("Holidays"), tx("Country of the public holidays"), onClick = onHolidays) {
+                Value(if (state.country == "AUTO") tx("Automatic") else Holidays.countryName(state.country))
+            }
+            SettingRow(tx("Show holidays"), tx("Mark them in the calendar")) {
+                SSwitch(checked = state.showHolidays, onCheckedChange = { vm.setShowHolidays(it) })
+            }
+        }
+
+        GroupLabel(tx("Tasks"))
+        CardGroup {
+            SettingRow(
+                tx("Repeating tasks"), "${state.tasks.count { it.repeating && it.isTask }} · ${tx("Review and fix schedules")}",
+                onClick = onRepeating
+            ) { Value("") }
+        }
+
+        GroupLabel(tx("Notifications"))
+        CardGroup {
+            SettingRow(
+                tx("Exact reminders"), if (exact) tx("On · alarms arrive on time") else tx("Off · tap to allow"),
+                onClick = {
+                    if (Build.VERSION.SDK_INT >= 31) {
+                        ctx.startActivity(
+                            Intent(android.provider.Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM, Uri.parse("package:${ctx.packageName}"))
+                        )
+                    }
+                }
+            ) { Value("") }
+            SettingRow(tx("Evening nudge"), tx("A reminder at 19:00–20:00 if tasks are left")) {
+                SSwitch(checked = state.nudgeOn, onCheckedChange = { vm.setNudge(it) })
+            }
+            SettingRow(tx("Weekly review"), tx("A short summary every week")) {
+                SSwitch(checked = state.reviewOn, onCheckedChange = { vm.setReview(it) })
+            }
+        }
+
+        GroupLabel(tx("Calendar"))
+        CardGroup {
+            SettingRow(tx("Week starts on"), tx("First day in calendar and charts")) {
+                MenuButton(DayOfWeek.of(state.weekStartDay).getDisplayName(JTextStyle.FULL, Locale.getDefault())) { close ->
+                    DayOfWeek.values().forEach { d ->
+                        MenuItem(d.getDisplayName(JTextStyle.FULL, Locale.getDefault()), d.value == state.weekStartDay) {
+                            vm.setWeekStart(d.value); close()
+                        }
+                    }
+                }
+            }
+        }
+
+        GroupLabel(tx("Data"))
+        CardGroup {
+            SettingRow(tx("Import"), tx("Add tasks from a backup file"), onClick = onImport) { Value("") }
+            SettingRow(tx("Export"), tx("Save tasks, history and settings"), onClick = onExport) { Value("") }
+        }
+        Spacer(Modifier.height(12.dp))
+        Card(onClick = { confirmReset = true }) {
+            Text(
+                tx("Reset all data"), color = RED, fontSize = 16.sp, fontWeight = FontWeight.Medium, textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
+            )
+        }
+        Text(
+            "Tasker $version", fontSize = 12.sp, color = cs.onSurfaceVariant.copy(alpha = 0.7f), textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth().padding(top = 20.dp)
+        )
     }
 
     if (confirmReset) {
-        AlertDialog(
-            containerColor = cs.surface, shape = RShape(24.dp),
-            onDismissRequest = { confirmReset = false },
-            title = { Text(tx("Reset all data?")) },
-            text = { Text(tx("All tasks and your finished history will be deleted. Export first if you want a copy.")) },
-            confirmButton = { STextButton(onClick = { vm.resetData(); confirmReset = false }) { Text(tx("Reset"), color = RED) } },
-            dismissButton = { STextButton(onClick = { confirmReset = false }) { Text(tx("Cancel")) } }
+        CDialog(
+            title = tx("Reset all data?"),
+            text = tx("All tasks and your finished history will be deleted. Export first if you want a copy."),
+            confirm = tx("Reset"), destructive = true,
+            onConfirm = { vm.resetData(); confirmReset = false }, onDismiss = { confirmReset = false }
         )
     }
+}
+
+@Composable
+private fun AccentPicker(selected: Int, onPick: (Int) -> Unit) {
+    val ctx = LocalContext.current
+    val cs = MaterialTheme.colorScheme
+    val dark = cs.background.luminance() < 0.5f
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
+        (0 until ACCENT_COUNT).forEach { i ->
+            val c = accentColor(ctx, i, dark)
+            val on = i == selected
+            val ring by animateDpAsState(if (on) 2.dp else 0.dp, spring(dampingRatio = 0.8f, stiffness = 600f), label = "accentRing")
+            Box(
+                Modifier.size(38.dp).then(if (ring > 0.dp) Modifier.border(ring, c, CircleShape) else Modifier).padding(4.dp)
+                    .springClick(CircleShape, 0.85f) { onPick(i) }
+                    .background(
+                        if (i == 0) Brush.sweepGradient(listOf(c, Color(0xFF1FB8B0), Color(0xFFFF8A34), Color(0xFFF0386B), c))
+                        else Brush.linearGradient(listOf(c, c))
+                    ),
+                contentAlignment = Alignment.Center
+            ) {
+                val k by animateFloatAsState(if (on) 1f else 0f, spring(dampingRatio = 0.6f, stiffness = 600f), label = "accentCheck")
+                if (k > 0.01f) {
+                    Icon(
+                        Icons.Default.Check, null, tint = onColor(c),
+                        modifier = Modifier.size(16.dp).graphicsLayer { scaleX = k; scaleY = k; alpha = k.coerceIn(0f, 1f) }
+                    )
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun MenuItem(label: String, selected: Boolean, onClick: () -> Unit) {
+    val cs = MaterialTheme.colorScheme
+    DropdownMenuItem(
+        text = { Text(label, color = if (selected) cs.primary else cs.onSurface, fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal) },
+        trailingIcon = if (selected) ({ Icon(Icons.Default.Check, null, tint = cs.primary, modifier = Modifier.size(18.dp)) }) else null,
+        onClick = onClick
+    )
 }
 
 @Composable
@@ -774,7 +951,7 @@ fun SettingsScreen(
     onImport: () -> Unit, onExport: () -> Unit, onRepeating: () -> Unit,
     onLanguage: () -> Unit, onHolidays: () -> Unit, modifier: Modifier = Modifier
 ) {
-    OverlayScaffold(tx("Settings"), "", onClose, modifier) {
+    LargeTitleScaffold(tx("Settings"), modifier, onBack = onClose) {
         SettingsPage(
             state, tick, vm, onImport, onExport, onRepeating, onLanguage, onHolidays,
             modifier = Modifier.weight(1f)
@@ -788,63 +965,51 @@ fun Value(text: String) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         if (text.isNotEmpty()) {
             Text(text, fontSize = 14.sp, color = cs.onSurfaceVariant, maxLines = 1, overflow = TextOverflow.Ellipsis, modifier = Modifier.widthIn(max = 150.dp))
-            Spacer(Modifier.width(6.dp))
+            Spacer(Modifier.width(4.dp))
         }
-        Text("›", fontSize = 22.sp, color = cs.onSurfaceVariant)
+        Chevron()
     }
 }
 
 @Composable
-fun SectionLabel(text: String) {
-    Text(
-        text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 8.dp, top = 18.dp, bottom = 4.dp)
-    )
-}
+fun SectionLabel(text: String) = GroupLabel(text)
 
 @Composable
 fun SettingRow(title: String, subtitle: String, onClick: (() -> Unit)? = null, trailing: @Composable () -> Unit) {
     val cs = MaterialTheme.colorScheme
-    val shape = CtrlShape
-    Column {
-        Row(
-            Modifier.fillMaxWidth()
-                .then(if (onClick != null) Modifier.springClick(shape, 0.98f, onClick = onClick) else Modifier.clip(shape))
-                .padding(horizontal = 8.dp, vertical = 14.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(Modifier.weight(1f).padding(end = 8.dp)) {
-                Text(title, fontWeight = FontWeight.Medium, fontSize = 16.sp)
-                SwapText(subtitle, fontSize = 12.sp, color = cs.onSurfaceVariant)
+    val src = remember { MutableInteractionSource() }
+    val press = pressProgress(src)
+    CompositionLocalProvider(LocalIconPress provides press) {
+    Row(
+        Modifier.fillMaxWidth().heightIn(min = 56.dp)
+            .then(if (onClick != null) Modifier.springClick(RectangleShape, 1f, source = src, onClick = onClick) else Modifier)
+            .padding(start = 16.dp, end = 14.dp, top = 12.dp, bottom = 12.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Column(Modifier.weight(1f).padding(end = 10.dp)) {
+            Text(title, fontSize = 16.sp)
+            if (subtitle.isNotEmpty()) {
+                Spacer(Modifier.height(2.dp))
+                SwapText(subtitle, fontSize = 13.sp, color = cs.onSurfaceVariant)
             }
-            trailing()
         }
-        HorizontalDivider(Modifier.padding(horizontal = 8.dp), color = cs.outline.copy(alpha = 0.3f))
+        trailing()
+    }
     }
 }
 
 // ═══════════════ PickerScreens ═══════════════
 
 @Composable
-fun OverlayScaffold(
-    title: String, subtitle: String, onClose: () -> Unit, modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit
-) {
-    val cs = MaterialTheme.colorScheme
-    val block = remember { MutableInteractionSource() }
-    Surface(
-        modifier = modifier.fillMaxSize().clickable(interactionSource = block, indication = null, onClick = {}),
-        color = cs.background, contentColor = cs.onBackground
-    ) {
-        Column(Modifier.fillMaxSize().statusBarsPadding()) {
-            Row(Modifier.padding(start = 24.dp, end = 8.dp, top = 8.dp), verticalAlignment = Alignment.CenterVertically) {
-                Column(Modifier.weight(1f)) {
-                    Text(title, fontSize = 28.sp, fontWeight = FontWeight.Bold)
-                    if (subtitle.isNotEmpty()) Text(subtitle, fontSize = 13.sp, color = cs.onSurfaceVariant)
-                }
-                SIconButton(onClick = onClose) { Icon(Icons.Default.Close, contentDescription = "Close") }
-            }
-            content()
+fun Modifier.groupItem(index: Int, count: Int): Modifier {
+    val top = if (index == 0) 20.dp else 0.dp
+    val bottom = if (index == count - 1) 20.dp else 0.dp
+    val line = MaterialTheme.colorScheme.outline
+    return this.clip(RoundedCornerShape(top, top, bottom, bottom)).background(cardColor()).drawWithContent {
+        drawContent()
+        if (index > 0) {
+            val x = 16.dp.toPx()
+            drawLine(line, Offset(x, 0f), Offset(size.width - x, 0f), 0.6.dp.toPx().coerceAtLeast(1f))
         }
     }
 }
@@ -852,30 +1017,26 @@ fun OverlayScaffold(
 @Composable
 fun PickRow(
     title: String, sub: String?, selected: Boolean, onClick: () -> Unit,
-    trailing: @Composable () -> Unit = {}
+    modifier: Modifier = Modifier, trailing: @Composable () -> Unit = {}
 ) {
     val cs = MaterialTheme.colorScheme
-    val bg by animateColorAsState(if (selected) cs.surfaceVariant else cs.surfaceVariant.copy(alpha = 0f), label = "pickBg")
+    val fg by animateColorAsState(if (selected) cs.primary else cs.onSurface, label = "pickFg")
     Row(
-        Modifier.fillMaxWidth().springClick(CtrlShape, 0.98f, onClick = onClick).background(bg)
-            .padding(horizontal = 14.dp, vertical = 12.dp),
+        modifier.fillMaxWidth().springClick(RectangleShape, 1f, onClick = onClick)
+            .heightIn(min = 56.dp).padding(horizontal = 16.dp, vertical = 12.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Column(Modifier.weight(1f).padding(end = 8.dp)) {
-            Text(title, fontWeight = FontWeight.Medium, fontSize = 16.sp)
-            if (sub != null) Text(sub, fontSize = 12.sp, color = cs.onSurfaceVariant)
+            Text(title, fontSize = 16.sp, color = fg, fontWeight = if (selected) FontWeight.Medium else FontWeight.Normal)
+            if (sub != null) Text(sub, fontSize = 13.sp, color = cs.onSurfaceVariant)
         }
         trailing()
-        if (selected) Icon(Icons.Default.Check, null, modifier = Modifier.padding(start = 8.dp).size(20.dp))
+        AnimatedVisibility(
+            visible = selected,
+            enter = scaleIn(spring(dampingRatio = 0.6f, stiffness = 600f)) + fadeIn(),
+            exit = scaleOut() + fadeOut()
+        ) { Icon(Icons.Default.Check, null, tint = cs.primary, modifier = Modifier.padding(start = 8.dp).size(20.dp)) }
     }
-}
-
-@Composable
-private fun ListLabel(text: String) {
-    Text(
-        text, fontSize = 13.sp, fontWeight = FontWeight.SemiBold, color = MaterialTheme.colorScheme.onSurfaceVariant,
-        modifier = Modifier.padding(start = 14.dp, top = 18.dp, bottom = 4.dp)
-    )
 }
 
 // ───────────── language ─────────────
@@ -883,16 +1044,19 @@ private fun ListLabel(text: String) {
 @Composable
 fun LanguageList(state: AppState, vm: TrackerViewModel, modifier: Modifier = Modifier, onPicked: () -> Unit = {}) {
     val deviceCode = if (Lang.deviceLocale.language in Lang.codes) Lang.deviceLocale.language else "en"
-    LazyColumn(modifier, contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)) {
+    LazyColumn(modifier, contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)) {
         item(key = "device") {
             PickRow(
                 tx("Device language"), Lang.nativeName(deviceCode), state.language.isEmpty(),
-                onClick = { vm.setLanguage(""); onPicked() }
+                onClick = { vm.setLanguage(""); onPicked() }, modifier = Modifier.groupItem(0, 1)
             )
         }
-        item(key = "label") { ListLabel(tx("Built in · works offline")) }
-        items(Lang.all, key = { it.first }) { (code, name) ->
-            PickRow(name, null, state.language == code, onClick = { vm.setLanguage(code); onPicked() })
+        item(key = "label") { GroupLabel(tx("Built in · works offline")) }
+        itemsIndexed(Lang.all, key = { _, it -> it.first }) { i, (code, name) ->
+            PickRow(
+                name, null, state.language == code, onClick = { vm.setLanguage(code); onPicked() },
+                modifier = Modifier.groupItem(i, Lang.all.size)
+            )
         }
         item(key = "end") { Spacer(Modifier.height(bottomSpace(24.dp))) }
     }
@@ -900,7 +1064,7 @@ fun LanguageList(state: AppState, vm: TrackerViewModel, modifier: Modifier = Mod
 
 @Composable
 fun LanguageScreen(state: AppState, vm: TrackerViewModel, onClose: () -> Unit, modifier: Modifier = Modifier) {
-    OverlayScaffold(tx("Language"), tx("Pick the language of the app"), onClose, modifier) {
+    LargeTitleScaffold(tx("Language"), modifier, subtitle = tx("Pick the language of the app"), onBack = onClose) {
         LanguageList(state, vm, Modifier.weight(1f).fillMaxWidth(), onPicked = onClose)
     }
 }
@@ -909,6 +1073,7 @@ fun LanguageScreen(state: AppState, vm: TrackerViewModel, onClose: () -> Unit, m
 
 @Composable
 fun HolidaysList(state: AppState, vm: TrackerViewModel, modifier: Modifier = Modifier, onPicked: () -> Unit = {}) {
+    val cs = MaterialTheme.colorScheme
     val lang = LocalLang.current
     var query by remember { mutableStateOf("") }
     val all = remember(lang) { Holidays.allCountries() }
@@ -918,21 +1083,47 @@ fun HolidaysList(state: AppState, vm: TrackerViewModel, modifier: Modifier = Mod
         all.filter { q.isEmpty() || it.second.lowercase().contains(q) || it.first.lowercase() == q }
     }
 
-    LazyColumn(modifier.imePadding(), contentPadding = PaddingValues(horizontal = 14.dp, vertical = 8.dp)) {
+    LazyColumn(modifier.imePadding(), contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)) {
         item(key = "search") {
-            OutlinedTextField(
-                value = query, onValueChange = { query = it }, singleLine = true, shape = CtrlShape,
-                placeholder = { Text(tx("Search countries")) },
-                modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-            )
+            Row(
+                Modifier.fillMaxWidth().padding(bottom = 12.dp).height(44.dp).clip(RShape(22.dp))
+                    .background(cs.onSurface.copy(alpha = 0.06f)).padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(Icons.Default.Search, null, tint = cs.onSurfaceVariant, modifier = Modifier.size(20.dp))
+                Spacer(Modifier.width(10.dp))
+                BasicTextField(
+                    value = query, onValueChange = { query = it }, singleLine = true,
+                    textStyle = TextStyle(color = cs.onSurface, fontSize = 16.sp),
+                    cursorBrush = SolidColor(cs.primary),
+                    modifier = Modifier.weight(1f),
+                    decorationBox = { inner ->
+                        Box {
+                            if (query.isEmpty()) Text(tx("Search countries"), fontSize = 16.sp, color = cs.onSurfaceVariant)
+                            inner()
+                        }
+                    }
+                )
+                if (query.isNotEmpty()) {
+                    SIconButton(onClick = { query = "" }, modifier = Modifier.size(32.dp)) {
+                        Icon(Icons.Default.Close, "Clear", tint = cs.onSurfaceVariant, modifier = Modifier.size(16.dp))
+                    }
+                }
+            }
         }
         item(key = "auto") {
             val sub = tx("Follows your phone") + if (deviceCode.isEmpty()) "" else " · " + Holidays.countryName(deviceCode)
-            PickRow(tx("Automatic"), sub, state.country == "AUTO", onClick = { vm.setCountry("AUTO"); onPicked() })
+            PickRow(
+                tx("Automatic"), sub, state.country == "AUTO", onClick = { vm.setCountry("AUTO"); onPicked() },
+                modifier = Modifier.groupItem(0, 1)
+            )
         }
-        item(key = "labelAll") { ListLabel("${tx("All countries")} · ${shown.size}") }
-        items(shown, key = { it.first }) { (code, name) ->
-            PickRow(name, null, state.country == code, onClick = { vm.setCountry(code); onPicked() })
+        item(key = "labelAll") { GroupLabel("${tx("All countries")} · ${shown.size}") }
+        itemsIndexed(shown, key = { _, it -> it.first }) { i, (code, name) ->
+            PickRow(
+                name, null, state.country == code, onClick = { vm.setCountry(code); onPicked() },
+                modifier = Modifier.groupItem(i, shown.size)
+            )
         }
         item(key = "end") { Spacer(Modifier.height(bottomSpace(24.dp))) }
     }
@@ -940,7 +1131,7 @@ fun HolidaysList(state: AppState, vm: TrackerViewModel, modifier: Modifier = Mod
 
 @Composable
 fun HolidaysScreen(state: AppState, vm: TrackerViewModel, onClose: () -> Unit, modifier: Modifier = Modifier) {
-    OverlayScaffold(tx("Holidays"), tx("Names are in the language of the country"), onClose, modifier) {
+    LargeTitleScaffold(tx("Holidays"), modifier, subtitle = tx("Names are in the language of the country"), onBack = onClose) {
         HolidaysList(state, vm, Modifier.weight(1f).fillMaxWidth(), onPicked = onClose)
     }
 }
@@ -962,22 +1153,23 @@ class WidgetConfigActivity : ComponentActivity() {
             cls.endsWith("InsightsWidget") -> 3
             else -> 0
         }
-        val tasks = Store.get(this).tasks.filter { it.repeating }
+        val tasks = Store.get(this).tasks.filter { it.repeating && it.isTask }
         val lang = Lang.resolve(Store.get(this).language)
         val ctx = this
         enableEdgeToEdge()
         setContent {
             CompositionLocalProvider(LocalLang provides lang, LocalLayoutDirection provides LayoutDirection.Ltr) {
-                TrackerTheme(dark = isSystemInDarkTheme(), oled = false, springy = true) {
+                TrackerTheme(dark = isSystemInDarkTheme(), oled = false, springy = true, accent = Store.get(ctx).accent) {
                     val cs = MaterialTheme.colorScheme
                     Surface(Modifier.fillMaxSize(), color = cs.background, contentColor = cs.onBackground) {
                         var look by remember { mutableStateOf(WidgetPrefs.look(ctx, id)) }
                         Column(Modifier.fillMaxSize().systemBarsPadding()) {
                             WidgetPreviewPanel(kind, look)
                             Column(
-                                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 14.dp)
+                                Modifier.weight(1f).verticalScroll(rememberScrollState()).padding(horizontal = 16.dp)
                             ) {
                                 SectionLabel(tx("Appearance"))
+                                CardGroup {
                                 SettingRow(tx("Widget background"), tx("Light, dark, black or see-through")) {
                                     MenuButton(tx(WidgetStyle.names[look.bg])) { close ->
                                         WidgetStyle.names.forEachIndexed { i, n ->
@@ -1026,6 +1218,7 @@ class WidgetConfigActivity : ComponentActivity() {
                                         }
                                     }
                                 }
+                                }
                                 Spacer(Modifier.height(16.dp))
                             }
                             SButton(
@@ -1035,7 +1228,7 @@ class WidgetConfigActivity : ComponentActivity() {
                                     setResult(RESULT_OK, Intent().putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, id))
                                     finish()
                                 },
-                                modifier = Modifier.fillMaxWidth().padding(horizontal = 14.dp, vertical = 12.dp).height(54.dp)
+                                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 12.dp).height(52.dp)
                             ) { Text(tx("Save widget"), fontSize = 16.sp) }
                         }
                     }
@@ -1050,15 +1243,12 @@ private fun SliderRow(
     title: String, valueText: String, value: Float, from: Float, to: Float, step: Float, onChange: (Float) -> Unit
 ) {
     val cs = MaterialTheme.colorScheme
-    Column {
-        Column(Modifier.padding(horizontal = 8.dp).padding(top = 12.dp, bottom = 4.dp)) {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Text(title, Modifier.weight(1f), fontWeight = FontWeight.Medium, fontSize = 16.sp)
-                Text(valueText, color = cs.onSurfaceVariant, fontSize = 14.sp)
-            }
-            SSlider(value, onChange, from, to, step = step)
+    Column(Modifier.padding(horizontal = 16.dp).padding(top = 14.dp, bottom = 6.dp)) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(title, Modifier.weight(1f), fontSize = 16.sp)
+            Text(valueText, color = cs.onSurfaceVariant, fontSize = 14.sp, style = TextStyle(fontFeatureSettings = "tnum"))
         }
-        HorizontalDivider(Modifier.padding(horizontal = 8.dp), color = cs.outline.copy(alpha = 0.3f))
+        SSlider(value, onChange, from, to, step = step)
     }
 }
 
@@ -1069,7 +1259,7 @@ private fun WidgetPreviewPanel(kind: Int, look: WidgetLook) {
     val w = if (kind == 2) 240 else 320
     val h = when (kind) { 2 -> 240; 3 -> 140; else -> 180 }
     BoxWithConstraints(
-        Modifier.fillMaxWidth().padding(14.dp).clip(shape)
+        Modifier.fillMaxWidth().padding(16.dp).clip(shape)
             .background(Brush.linearGradient(listOf(Color(0xFF4C6EF5), Color(0xFFB197FC), Color(0xFFFFA8A8))))
     ) {
         val maxW = maxWidth - 36.dp
@@ -1091,27 +1281,43 @@ private fun WidgetPreviewPanel(kind: Int, look: WidgetLook) {
 private fun TasksPreview(clock: Boolean, look: WidgetLook, w: Int, h: Int) {
     val ctx = LocalContext.current
     val p = WidgetStyle.palette(ctx, look)
+    val accent = Color(WidgetStyle.accent(ctx, p))
     val fs = look.fontScale
-    val ring = (24 * look.iconScale).dp
-    val rows = listOf(Triple(tx("Morning run"), 0xFFFF6B6B.toInt(), true), Triple(tx("Read 20 pages"), 0xFF4D9BFF.toInt(), false), Triple(tx("Plan tomorrow"), p.ring, false))
+    val ring = (22 * look.iconScale).dp
+    val rows = listOf(
+        Triple(tx("Morning run"), 0xFFFF6B6B.toInt(), true),
+        Triple(tx("Read 20 pages"), accent.toArgb(), true),
+        Triple(tx("Plan tomorrow"), p.ring, false)
+    )
+    val radius = WidgetBitmaps.cornerDp(ctx).dp
     Column(
-        Modifier.size(w.dp, h.dp).clip(RShape(28.dp)).background(Color(p.bgColor))
-            .padding(start = 20.dp, end = 20.dp, top = 16.dp)
+        Modifier.size(w.dp, h.dp).clip(RoundedCornerShape(radius)).background(Color(p.bgColor))
+            .padding(start = 18.dp, end = 16.dp, top = 16.dp)
     ) {
-        if (clock) Text("12:40", color = Color(p.text), fontWeight = FontWeight.Bold, fontSize = (look.clockSize * 0.7f).sp)
-        else Text(tx("Today"), color = Color(p.text), fontWeight = FontWeight.Bold, fontSize = (32 * fs).sp)
-        Text(
-            LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.getDefault())),
-            color = Color(p.secondary), fontSize = (14 * fs).sp
-        )
-        Spacer(Modifier.height(6.dp))
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Column(Modifier.weight(1f)) {
+                if (clock) Text("12:40", color = Color(p.text), fontWeight = FontWeight.Medium, fontSize = (look.clockSize * 0.7f).sp)
+                else Text(tx("Today"), color = accent, fontWeight = FontWeight.Medium, fontSize = (13 * fs).sp)
+                Text(
+                    LocalDate.now().format(DateTimeFormatter.ofPattern("EEEE, d MMMM", Locale.getDefault()))
+                        .replaceFirstChar { it.titlecase(Locale.getDefault()) },
+                    color = Color(if (clock) p.secondary else p.text), fontWeight = FontWeight.Bold,
+                    fontSize = ((if (clock) 14 else 19) * fs).sp, maxLines = 1, overflow = TextOverflow.Ellipsis
+                )
+            }
+            val ringBmp = remember(look, p.bgColor) {
+                WidgetBitmaps.progressRing(ctx, p, accent.toArgb(), 2, 3, 44f * look.iconScale.coerceIn(0.7f, 1.4f), fs).asImageBitmap()
+            }
+            Image(ringBmp, null, Modifier.padding(start = 10.dp).size((44f * look.iconScale.coerceIn(0.7f, 1.4f)).dp))
+        }
+        Spacer(Modifier.height(4.dp))
         rows.forEach { (title, c, done) ->
-            Row(Modifier.padding(vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(Modifier.padding(vertical = 7.dp), verticalAlignment = Alignment.CenterVertically) {
                 Box(
-                    Modifier.size(ring).clip(CircleShape).then(if (done) Modifier.background(Color(c)) else Modifier.border(2.dp, Color(c), CircleShape)),
+                    Modifier.size(ring).clip(CircleShape).then(if (done) Modifier.background(Color(c)) else Modifier.border(1.8.dp, Color(c), CircleShape)),
                     contentAlignment = Alignment.Center
-                ) { if (done) Text("✓", color = Color.White, fontSize = (13 * look.iconScale).sp, fontWeight = FontWeight.Bold) }
-                Spacer(Modifier.width(14.dp))
+                ) { if (done) Text("✓", color = onColor(Color(c)), fontSize = (12 * look.iconScale).sp, fontWeight = FontWeight.Bold) }
+                Spacer(Modifier.width(12.dp))
                 Text(
                     title, color = Color(if (done) p.secondary else p.text), fontSize = (16 * fs).sp, maxLines = 1,
                     textDecoration = if (done) TextDecoration.LineThrough else null
